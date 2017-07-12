@@ -1,21 +1,24 @@
-yolo0 <- function(img, logfile="yolo_detections.txt", predictions="yolo_predictions/") {
-  #' @title Detect people using YOLOv2 in one image.
+yolo_single <- function(img, logfile="yolo_detections.txt", predictions="yolo_predictions/") {
+  #' @title Detect people using YOLO in a single image.
   #' @description Detect objects using YOLO+CNN (Linux C++), in a single image.
   #'
   #' @param img (Absolute) filepath to image, also known as `now`.
   #' @param logfile Relative filepath to where to store detailed list of
   #' classification results.
-  #' @param predictions dirpath to where to store predictions
+  #' @param predictions dirpath to where to store prediction images
   #'
   #' @return Numeric number of detected persons.
   #'
+  #' @details Single processing allows storing `predictions` (images with
+  #' bounding boxes). Since these can be very insightful, you migth want to
+  #' `sapply()` this function instead of `yolo_list()`. However because then
+  #' the wights have to be loaded repetivly (~10 seconds) this slows down
+  #' processing.
   #' @details It's recomendended avoid spaces in the paths (also in working
   #' directory).
   #' @details
   #' Further ideas:
   #' - Skip saving predictions.png
-  #' - Wrap detection into list-based processing
-  #'    ./darknet detect cfg/yolo.cfg yolo.weights < listofabsolutepaths.txt
   #' - Use RCCP to wrap YOLO into R.
   #'
 
@@ -42,7 +45,7 @@ yolo0 <- function(img, logfile="yolo_detections.txt", predictions="yolo_predicti
     dir.create(predictions)
 
   # Classification
-  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo0.sh")
+  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_single.sh")
   cmd <- paste(yolo.bin, yolo.inst, img, predictions)
   out <- system(cmd, intern = TRUE, show.output.on.console = FALSE)
 
@@ -58,8 +61,8 @@ yolo0 <- function(img, logfile="yolo_detections.txt", predictions="yolo_predicti
 
 
 
-yolo <- function(img.list, logfile="yolo_detections.txt") {
-  #' @title Detect people using YOLOv2 in multiple images.
+yolo_list <- function(img.list, logfile="yolo_detections.txt") {
+  #' @title Detect people using YOLO in multiple images.
   #' @description Detect objects using YOLO+CNN (Linux C++), in multiple images.
   #'
   #' @param img.list (Absolute) filepath to image, also known as `now`.
@@ -82,7 +85,7 @@ yolo <- function(img.list, logfile="yolo_detections.txt") {
   cat(img.list, file = img.file, sep = "\n")
 
   # Classification
-  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo.sh")
+  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_list.sh")
   cmd <- paste(yolo.bin, yolo.inst, img.file)
   out <- system(cmd, intern = TRUE, show.output.on.console = FALSE)
 
@@ -93,7 +96,9 @@ yolo <- function(img.list, logfile="yolo_detections.txt") {
   cues <- grep("Enter Image Path: ", rtn)
   ## grep filenames
   grep.names <- function(names) {
-    rtn.names <- basename(sapply(names,'[[',1))  # Drop first half, then runtime:
+    # Drop first half of character string
+    rtn.names <- basename(sapply(names,'[[',1))
+    # then second (runtime):
     rtn.names <- sapply(sapply(rtn.names, strsplit, ": Predicted"), '[[',1)
     rtn.names
   }
