@@ -2,10 +2,10 @@ Package: wuepix
 Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Jeroen Staab
+Maintainer: Jeroen Staab <jstaab@posteo.de>
+Description: Wuepix detects people in image archives and is ment to aid geographers counting visitors of touristic destinations as natural reservers.
+    This package is part of the authors master thesis.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

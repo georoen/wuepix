@@ -1,7 +1,17 @@
 #' @author Jeroen Staab
-#' @import jpeg
-ChangeDetection <- function(now, old, extend=NULL, min=NULL, max=NULL){
-  #library(jpeg)
+ChangeDetection <- function(now, old, min=30/255, max=220/255, extend=NULL){
+  #' @import jpeg
+  #' @title  Detect changes using image differencing
+  #'
+  #' @param now Path to first image
+  #' @param old Path to second image
+  #' @param min Threshold for positive classification
+  #' @param max Threshold for positive classification
+  #' @param extend DEPECATED!
+  #' Used to crop images. Has been moved to a seperate preprocess step.
+  #'
+  #' @return Classification result. Here work is in progess...
+
 
   #Function:
   ## getImage
@@ -38,8 +48,6 @@ ChangeDetection <- function(now, old, extend=NULL, min=NULL, max=NULL){
   ###! this is experimental !###
   ### Himmelsrichtung: Von Osten. Position: Mittleres Kaufhaus 3.Stock (Whörl?), Richtung Westen (Festung).
   ## Treshold as from day one.
-  min <- 30/255
-  max <- 220/255
   classified <- hum[,,1]<max & hum[,,1]>min & hum[,,2]<max & hum[,,2]>min & hum[,,3]<max & hum[,,3]>min
 
   hum[classified]<-1

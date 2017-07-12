@@ -4,13 +4,16 @@
 \alias{yolo}
 \title{Detect people usind YOLOv2}
 \usage{
-yolo(now, logfile = "yolo_detections.txt")
+yolo(img, logfile = "yolo_detections.txt",
+  predictions = "yolo_predictions/")
 }
 \arguments{
-\item{now}{Absolute filepath to image.}
+\item{img}{(Absolute) filepath to image, also known as `now`.}
 
 \item{logfile}{Relative filepath to where to store detailed list of
 classification results.}
+
+\item{predictions}{dirpath to where to store predictions}
 }
 \value{
 Numeric number of detected persons.
@@ -19,6 +22,9 @@ Numeric number of detected persons.
 Detect objects using YOLO+CNN (Linux C++), in a single image.
 }
 \details{
+It's recomendended avoid spaces in the paths (also in working
+directory).
+
 Further ideas:
 - Skip saving predictions.png
 - Wrap detection into list-based processing

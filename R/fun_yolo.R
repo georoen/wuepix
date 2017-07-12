@@ -1,13 +1,16 @@
-yolo <- function(now, logfile="yolo_detections.txt") {
+yolo <- function(img, logfile="yolo_detections.txt", predictions="yolo_predictions/") {
   #' @title Detect people usind YOLOv2
   #' @description Detect objects using YOLO+CNN (Linux C++), in a single image.
   #'
-  #' @param now Absolute filepath to image.
+  #' @param img (Absolute) filepath to image, also known as `now`.
   #' @param logfile Relative filepath to where to store detailed list of
   #' classification results.
+  #' @param predictions dirpath to where to store predictions
   #'
   #' @return Numeric number of detected persons.
   #'
+  #' @details It's recomendended avoid spaces in the paths (also in working
+  #' directory).
   #' @details
   #' Further ideas:
   #' - Skip saving predictions.png
@@ -34,16 +37,21 @@ yolo <- function(now, logfile="yolo_detections.txt") {
   # 'cd ~/Programmierung/YOLO/'
   # './darknet detect cfg/yolo.cfg yolo.weights "$file"'
 
+  # Check predictions folder
+  if(!dir.exists(predictions))
+    dir.create(predictions)
+
   # Classification
   yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo.sh")
-  cmd <- paste(yolo.bin, yolo.inst, now)
+  cmd <- paste(yolo.bin, yolo.inst, img, predictions)
   out <- system(cmd, intern = TRUE, show.output.on.console = FALSE)
 
   # Process output
   ## drop processing time
   rtn <- out[-1]
   ## write classification results to logfile
-  cat(basename(now), rtn, file = logfile, fill = TRUE, append = TRUE)
+  cat(basename(img), rtn, file = logfile, fill = TRUE, append = TRUE)
+  #writeLines(paste(basename(img), rtn), file = logfile)
   ## return number of persons
   invisible(length(grep("person", rtn)))
 }
