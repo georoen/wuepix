@@ -1,5 +1,5 @@
-yolo <- function(img, logfile="yolo_detections.txt", predictions="yolo_predictions/") {
-  #' @title Detect people usind YOLOv2
+yolo0 <- function(img, logfile="yolo_detections.txt", predictions="yolo_predictions/") {
+  #' @title Detect people using YOLOv2 in one image.
   #' @description Detect objects using YOLO+CNN (Linux C++), in a single image.
   #'
   #' @param img (Absolute) filepath to image, also known as `now`.
@@ -42,16 +42,73 @@ yolo <- function(img, logfile="yolo_detections.txt", predictions="yolo_predictio
     dir.create(predictions)
 
   # Classification
-  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo.sh")
+  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo0.sh")
   cmd <- paste(yolo.bin, yolo.inst, img, predictions)
   out <- system(cmd, intern = TRUE, show.output.on.console = FALSE)
 
   # Process output
-  ## drop processing time
+  ## drop runtime
   rtn <- out[-1]
   ## write classification results to logfile
   cat(basename(img), rtn, file = logfile, fill = TRUE, append = TRUE)
   #writeLines(paste(basename(img), rtn), file = logfile)
   ## return number of persons
   invisible(length(grep("person", rtn)))
+}
+
+
+
+yolo <- function(img.list, logfile="yolo_detections.txt") {
+  #' @title Detect people using YOLOv2 in multiple images.
+  #' @description Detect objects using YOLO+CNN (Linux C++), in multiple images.
+  #'
+  #' @param img.list (Absolute) filepath to image, also known as `now`.
+  #' @param logfile Relative filepath to where to store detailed list of
+  #' classification results.
+  #'
+  #' @return Numeric number of detected persons.
+  #'
+  #' @details Unfortuanatly it is not possible to store the prediction images.
+  #'
+  #' @import tools
+
+
+  # Depends on a working YOLO insatllation ! See sourcecode of yolo0().
+  yolo.inst <- "~/Programmierung/YOLO/"
+
+  # Save img.list with absolute paths in img.file
+  img.list <- sapply(img.list, tools::file_path_as_absolute)
+  img.file <- tempfile()
+  cat(img.list, file = img.file, sep = "\n")
+
+  # Classification
+  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo.sh")
+  cmd <- paste(yolo.bin, yolo.inst, img.file)
+  out <- system(cmd, intern = TRUE, show.output.on.console = FALSE)
+
+  # Process logfile
+  ## Drop last row (empty)
+  rtn <- out[-length(out)]
+  ## Split back into images
+  cues <- grep("Enter Image Path: ", rtn)
+  ## grep filenames
+  grep.names <- function(names) {
+    rtn.names <- basename(sapply(names,'[[',1))  # Drop first half, then runtime:
+    rtn.names <- sapply(sapply(rtn.names, strsplit, ": Predicted"), '[[',1)
+    rtn.names
+  }
+  rtn.names <- grep.names(rtn[cues])
+  rtn[cues] <- rtn.names
+  ## Add Linebreak
+  rtn[cues[-1]] <- paste0("\n", rtn[cues[-1]])
+  ## write classification results to logfile
+  cat(rtn, file = logfile, fill = FALSE, append = TRUE)
+
+  # Process return
+  ## Group output by image
+  # https://stackoverflow.com/a/25411832
+  rtn.groups <- split(rtn, cumsum(grepl(".jpg", rtn)))
+  rtn.people <- lapply(rtn.groups, function(x){length(grep("person", x))})
+  ## return number of persons
+  invisible(unlist(rtn.people))
 }
