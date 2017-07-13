@@ -1,44 +1,43 @@
-yolo_single <- function(img, logfile="yolo_detections.txt", predictions="yolo_predictions/") {
-  #' @title Detect people using YOLO in a single image.
-  #' @description Detect objects using YOLO+CNN (Linux C++), in a single image.
+#' @author Jeroen Staab
+#' @references
+#' \insertRef{redmon2016yolo9000}{wuepix}
+#' \url{https://pjreddie.com/darknet/yolo/}
+yolo_single <- function(img, logfile="yolo_detections.txt",
+                        predictions="yolo_predictions/") {
+  #' @title Object Detection using YOLO
+  #' @description detect people using YOLO+CNN (Linux C++), in a single image.
   #'
-  #' @param img (Absolute) filepath to image, also known as `now`.
-  #' @param logfile Relative filepath to where to store detailed list of
-  #' classification results.
-  #' @param predictions dirpath to where to store prediction images
+  #' @param img file path to image, also known as `now`.
+  #' @param logfile file path to where to store detailed list of classification
+  #' results.
+  #' @param predictions dir path to where to store prediction images
   #'
-  #' @return Numeric number of detected persons.
+  #' @return numeric number of detected persons.
   #'
-  #' @details Single processing allows storing `predictions` (images with
-  #' bounding boxes). Since these can be very insightful, you migth want to
-  #' `sapply()` this function instead of `yolo_list()`. However because then
-  #' the wights have to be loaded repetivly (~10 seconds) this slows down
+  #' @details depends on a working YOLO installation! See `yolo_install()` and
+  #' rerun `yolo_update()` after updating this package (Places yolo.inst in
+  #' package directory)
+  #' @details single processing allows storing `predictions` (images with
+  #' bounding boxes). Since these can be very insightful, you might want to
+  #' `sapply()` this function instead of `yolo_list()`. However because then the
+  #' wights have to be loaded repetitively (~10 seconds) this slows down
   #' processing.
-  #' @details It's recomendended avoid spaces in the paths (also in working
+  #' @details it's recommended avoid spaces in the paths (also in working
   #' directory).
-  #' @details
-  #' Further ideas:
-  #' - Skip saving predictions.png
-  #' - Use RCCP to wrap YOLO into R.
+  #' @details an idea for further work on this package would be to actually wrap
+  #' YOLO into R (e.g. using Rccp).
+  #'
+  #' @examples
+  #' yolo_single(img)
+  #' sapply(img.list, yolo_single)
   #'
 
   # Depends on a working YOLO insatllation !
-  yolo.inst <- "~/Programmierung/YOLO/"
-  # How to install?
-  # See also: https://pjreddie.com/darknet/yolo/
-  # 1. YOLO Darknet has to be installed:
-  # 'git clone https://github.com/pjreddie/darknet'
-  # 'cd darknet'
-  # 'make'
-  # 2. Where I moved the darknetfolder to ~/Programmierung/YOLO/
-  # 3. And a small helper script was created to interact with R: yolo.sh
-  # yolo.bin is path to bash script executing the classification
-  # Since it is important to process in the yolo directory, the script mainly
-  # 'cd's to the installation path. However additional actions as archiving
-  # predicted.png and parameters like '-thresh 0.1' can also be placed there.
-  # In case of a new installation write those two lines into yolo.bin:
-  # 'cd ~/Programmierung/YOLO/'
-  # './darknet detect cfg/yolo.cfg yolo.weights "$file"'
+  yolo.inst <- readLines(yolo.bin, warn = FALSE)
+  if(!exists("yolo.inst"))
+    stop("Could not find yolo.inst.\n
+         Installation successfull?\n
+         Also run `yolo_update(yolo.inst)` after updating this package!")
 
   # Check predictions folder
   if(!dir.exists(predictions))
@@ -62,22 +61,26 @@ yolo_single <- function(img, logfile="yolo_detections.txt", predictions="yolo_pr
 
 
 yolo_list <- function(img.list, logfile="yolo_detections.txt") {
-  #' @title Detect people using YOLO in multiple images.
-  #' @description Detect objects using YOLO+CNN (Linux C++), in multiple images.
+  #' @title Object Detection using YOLO
+  #' @description detect people using YOLO+CNN (Linux C++), in multiple images.
+  #' Unfortunately it is not possible to store the predictions here, but it is
+  #' significant faster on large image archives.
   #'
-  #' @param img.list (Absolute) filepath to image, also known as `now`.
-  #' @param logfile Relative filepath to where to store detailed list of
+  #' @param img.list file path to image, also known as `now`.
+  #' @param logfile file path to where to store detailed list of
   #' classification results.
   #'
-  #' @return Numeric number of detected persons.
+  #' @return numeric number of detected persons.
   #'
-  #' @details Unfortuanatly it is not possible to store the prediction images.
-  #'
+  #' @seealso \code{\link{yolo_single}}
   #' @import tools
 
-
-  # Depends on a working YOLO insatllation ! See sourcecode of yolo0().
-  yolo.inst <- "~/Programmierung/YOLO/"
+  # Depends on a working YOLO insatllation !
+  yolo.inst <- readLines(yolo.bin, warn = FALSE)
+  if(!exists("yolo.inst"))
+    stop("Could not find yolo.inst.\n
+         Installation successfull?\n
+         Also run `yolo_update(yolo.inst)` after updating this package!")
 
   # Save img.list with absolute paths in img.file
   img.list <- sapply(img.list, tools::file_path_as_absolute)
@@ -116,4 +119,116 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   rtn.people <- lapply(rtn.groups, function(x){length(grep("person", x))})
   ## return number of persons
   invisible(unlist(rtn.people))
+}
+
+
+
+yolo_install <- function(yolo.inst){
+  #' @title Install YOLO Automatically
+  #' @description
+  #'
+  #' @param yolo.inst directory for installation. Will be created
+  #'
+  #' @details this function wrapped the install procedure (1-3) while renaming
+  #' the directory from `darknet` to `basename(yolo.inst)` and additional run a
+  #' test to check whether installation succeeded.
+  #' @details 1. 'git clone https://github.com/pjreddie/darknet'
+  #' @details 2. 'cd darknet'
+  #' @details 3. 'make'
+  #' @details during installation `Makefile` will be opened, to finetune the
+  #' installation, eg. truning on multithreading or GPU processing.
+  #' @details after successfull installation it will place `yolo.inst` in
+  #' `paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")`
+  #'
+  #' @importFrom git2r clone
+
+
+  # Changing working directory
+  wd <- getwd()
+  message("Changing working directory during installation!")
+  setwd(dirname(yolo.inst))
+
+  # Clone repository
+  git2r::clone("https://github.com/pjreddie/darknet", basename(yolo.inst))
+
+  # Make install
+  setwd(basename(yolo.inst))
+  file.edit("Makefile")
+  readline("Optional tune parameter, eg `OPENMP=1` for multithreading.
+           Then press ANY key.")
+  system("make")
+
+  # Get wights
+  download.file("https://pjreddie.com/media/files/yolo.weights", "yolo.weights")
+
+  # Test
+  rtn <- try(system("./darknet detect cfg/yolo.cfg yolo.weights data/dog.jpg",
+                intern = TRUE))
+  if(length(rtn) == 0)
+    stop("Automatic installation failed!\n
+          Please retry manually following:\n
+          https://pjreddie.com/darknet/yolo/")
+  else
+    message("Installation sucessful!")
+
+  # Saving yolo.inst
+  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
+  cat(tools::file_path_as_absolute(yolo.inst), file = yolo.bin)
+
+  # Reset working directory and return
+  setwd(wd)
+  message("Working directory has been resettet")
+  invisible(0)
+}
+
+
+
+yolo_update <- function(yolo.inst){
+  #' @title Update YOLO
+  #'
+  #' @param yolo.inst directory of YOLO installation.
+  #'
+  #' @details since YOLO is under active development this function wraps the
+  #' update procedure (1-2) and test it.
+  #' @details 1. 'git pull'
+  #' @details 2. 'make'
+  #' @details during installation `Makefile` will be opened, to fine tune the
+  #' installation, e.g. turning on multithreading or GPU processing.
+  #' @details after successfull update it will place `yolo.inst` in
+  #' `paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")`
+
+  # Saving yolo.inst
+  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
+  cat(tools::file_path_as_absolute(yolo.inst), file = yolo.bin)
+
+  # Changing working directory
+  wd <- getwd()
+  message("Changing working directory during update!")
+  setwd(yolo.inst)
+
+  # Pull update
+  rtn <- system("git pull")
+  if(length(rtn) == 1)  # "Bereits aktuell."
+    stop()
+
+  # Make install
+  file.edit("Makefile")
+  readline("Optional tune parameter, eg `OPENMP=1` for multithreading.
+           Then press ANY key.")
+  system("make")
+
+  # Test
+  rtn <- try(system("./darknet detect cfg/yolo.cfg yolo.weights data/dog.jpg",
+                    intern = TRUE))
+  if(length(rtn) == 0)
+    warning("Automatic installation failed!\n
+            Please retry manually following:
+            https://pjreddie.com/darknet/yolo/")
+  else
+    message("Update sucessful!")
+
+  # Reset working directory and return
+  setwd(wd)
+  message("Working directory has been resettet")
+  invisible(0)
 }

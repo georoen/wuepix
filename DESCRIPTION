@@ -1,6 +1,6 @@
 Package: wuepix
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Using Computer Vision to Count Pedestrians
 Version: 0.1.0
 Author: Jeroen Staab
 Maintainer: Jeroen Staab <jstaab@posteo.de>
@@ -13,3 +13,4 @@ RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
+RdMacros: Rdpack

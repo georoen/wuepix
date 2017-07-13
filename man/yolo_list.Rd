@@ -2,22 +2,24 @@
 % Please edit documentation in R/fun_yolo.R
 \name{yolo_list}
 \alias{yolo_list}
-\title{Detect people using YOLO in multiple images.}
+\title{Object Detection using YOLO}
 \usage{
 yolo_list(img.list, logfile = "yolo_detections.txt")
 }
 \arguments{
-\item{img.list}{(Absolute) filepath to image, also known as `now`.}
+\item{img.list}{file path to image, also known as `now`.}
 
-\item{logfile}{Relative filepath to where to store detailed list of
+\item{logfile}{file path to where to store detailed list of
 classification results.}
 }
 \value{
-Numeric number of detected persons.
+numeric number of detected persons.
 }
 \description{
-Detect objects using YOLO+CNN (Linux C++), in multiple images.
+detect people using YOLO+CNN (Linux C++), in multiple images.
+Unfortunately it is not possible to store the predictions here, but it is
+significant faster on large image archives.
 }
-\details{
-Unfortuanatly it is not possible to store the prediction images.
+\seealso{
+\code{\link{yolo_single}}
 }

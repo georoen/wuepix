@@ -2,36 +2,51 @@
 % Please edit documentation in R/fun_yolo.R
 \name{yolo_single}
 \alias{yolo_single}
-\title{Detect people using YOLO in a single image.}
+\title{Object Detection using YOLO}
 \usage{
 yolo_single(img, logfile = "yolo_detections.txt",
   predictions = "yolo_predictions/")
 }
 \arguments{
-\item{img}{(Absolute) filepath to image, also known as `now`.}
+\item{img}{file path to image, also known as `now`.}
 
-\item{logfile}{Relative filepath to where to store detailed list of
-classification results.}
+\item{logfile}{file path to where to store detailed list of classification
+results.}
 
-\item{predictions}{dirpath to where to store prediction images}
+\item{predictions}{dir path to where to store prediction images}
 }
 \value{
-Numeric number of detected persons.
+numeric number of detected persons.
 }
 \description{
-Detect objects using YOLO+CNN (Linux C++), in a single image.
+detect people using YOLO+CNN (Linux C++), in a single image.
 }
 \details{
-Single processing allows storing `predictions` (images with
-bounding boxes). Since these can be very insightful, you migth want to
-`sapply()` this function instead of `yolo_list()`. However because then
-the wights have to be loaded repetivly (~10 seconds) this slows down
+depends on a working YOLO installation! See `yolo_install()` and
+rerun `yolo_update()` after updating this package (Places yolo.inst in
+package directory)
+
+single processing allows storing `predictions` (images with
+bounding boxes). Since these can be very insightful, you might want to
+`sapply()` this function instead of `yolo_list()`. However because then the
+wights have to be loaded repetitively (~10 seconds) this slows down
 processing.
 
-It's recomendended avoid spaces in the paths (also in working
+it's recommended avoid spaces in the paths (also in working
 directory).
 
-Further ideas:
-- Skip saving predictions.png
-- Use RCCP to wrap YOLO into R.
+an idea for further work on this package would be to actually wrap
+YOLO into R (e.g. using Rccp).
+}
+\examples{
+yolo_single(img)
+sapply(img.list, yolo_single)
+
+}
+\references{
+\insertRef{redmon2016yolo9000}{wuepix}
+\url{https://pjreddie.com/darknet/yolo/}
+}
+\author{
+Jeroen Staab
 }
