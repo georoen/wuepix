@@ -7,7 +7,7 @@
 yolo_list(img.list, logfile = "yolo_detections.txt")
 }
 \arguments{
-\item{img.list}{file path to image, also known as `now`.}
+\item{img.list}{file path to images.}
 
 \item{logfile}{file path to where to store detailed list of
 classification results.}

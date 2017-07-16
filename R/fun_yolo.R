@@ -33,7 +33,8 @@ yolo_single <- function(img, logfile="yolo_detections.txt",
   #'
 
   # Depends on a working YOLO insatllation !
-  yolo.inst <- readLines(yolo.bin, warn = FALSE)
+  yolo.inst <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
+  yolo.inst <- readLines(yolo.inst, warn = FALSE)
   if(!exists("yolo.inst"))
     stop("Could not find yolo.inst.\n
          Installation successfull?\n
@@ -66,7 +67,7 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   #' Unfortunately it is not possible to store the predictions here, but it is
   #' significant faster on large image archives.
   #'
-  #' @param img.list file path to image, also known as `now`.
+  #' @param img.list file path to images.
   #' @param logfile file path to where to store detailed list of
   #' classification results.
   #'
@@ -76,7 +77,8 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   #' @import tools
 
   # Depends on a working YOLO insatllation !
-  yolo.inst <- readLines(yolo.bin, warn = FALSE)
+  yolo.inst <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
+  yolo.inst <- readLines(yolo.inst, warn = FALSE)
   if(!exists("yolo.inst"))
     stop("Could not find yolo.inst.\n
          Installation successfull?\n
@@ -208,8 +210,12 @@ yolo_update <- function(yolo.inst){
 
   # Pull update
   rtn <- system("git pull")
-  if(length(rtn) == 1)  # "Bereits aktuell."
-    stop()
+  if(length(rtn) == 1){  # "Bereits aktuell."
+    # Reset working directory and return
+    setwd(wd)
+    message("Working directory has been resettet")
+    return()
+  }
 
   # Make install
   file.edit("Makefile")
