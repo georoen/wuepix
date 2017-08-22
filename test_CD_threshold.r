@@ -1,7 +1,7 @@
 # Test Threshold
 test_threshold_min <- Files %>%
   select(-starts_with("Hum"))
-CD_multi <- function(Files, min, max=1){
+CD_multi <- function(Files, min, max=1, predictions = NULL){
   cores <- detectCores()-1
   cl <- makeCluster(cores)
   registerDoParallel(cl)
@@ -11,25 +11,25 @@ CD_multi <- function(Files, min, max=1){
   act.Data <- foreach(now=Files$Filename[2:old.stop],
                       old=Files$Filename[1:new.stop],
                       .combine=c) %dopar%
-    sum(wuepix::ChangeDetection(now, old, min, max))
+    sum(wuepix::ChangeDetection(now, old, min, max, predictions))
 
   stopCluster(cl)
 
   act.Data <- c(NA,act.Data)
   act.Data
 }
-test_threshold_min$Hum0005 <- CD_multi(Files, 0.005)
-test_threshold_min$Hum001 <- CD_multi(Files, 0.01)
 test_threshold_min$Hum005 <- CD_multi(Files, 0.05)
 test_threshold_min$Hum01 <- CD_multi(Files, 0.1)
+test_threshold_min$Hum015 <- CD_multi(Files, 0.15)
 test_threshold_min$Hum02 <- CD_multi(Files, 0.2)
+test_threshold_min$Hum025 <- CD_multi(Files, 0.25)
 test_threshold_min$Hum03 <- CD_multi(Files, 0.3)
+test_threshold_min$Hum035 <- CD_multi(Files, 0.35)
 test_threshold_min$Hum04 <- CD_multi(Files, 0.4)
+test_threshold_min$Hum045 <- CD_multi(Files, 0.45)
 test_threshold_min$Hum05 <- CD_multi(Files, 0.5)
 test_threshold_min$Hum06 <- CD_multi(Files, 0.6)
 test_threshold_min$Hum07 <- CD_multi(Files, 0.7)
-test_threshold_min$Hum08 <- CD_multi(Files, 0.8)
-test_threshold_min$Hum09 <- CD_multi(Files, 0.9)
 
 test_threshold_min <- test_threshold_min %>%
   gather("Min", "Hum", 4:15) %>%
@@ -39,11 +39,13 @@ test_threshold_min <- test_threshold_min %>%
 ggplot(Files, aes(Timestamp, GTD)) +
   geom_jitter()
 ggplot(test_threshold_min, aes(as.factor(GTD), Hum, color=Min)) +
-  geom_boxplot()
+  geom_boxplot() +
+  scale_y_log10()
 ggplot(test_threshold_min, aes(Timestamp, Hum, color=Min)) +
   geom_smooth() +
   scale_y_log10() +
   labs(title="Logarithmic Time-Series Testing Different Thresholdes")
+
 
 # Calibration using purrr
 #' Best für 08 und 02. R² = 0.064
@@ -74,7 +76,7 @@ test_02 <- test_threshold_min %>%
 test_02 %>%
   gather("Method", "Value", 3:4) %>%
   ggplot(aes(Timestamp, Value, color=Method)) +
-  geom_point()
+  geom_smooth()
 test_02 %>%
   ggplot(aes(as.factor(GTD), Hum)) +
   geom_boxplot()
@@ -89,12 +91,19 @@ summary(test_md)
 test_md <- lm(GTD ~ Hum02 +Hum04 +Hum06 +Hum08, data = test_spread)
 summary(test_md)
 
+# Calibration Durchburch ?!
 Files2 <- test_spread %>%
   mutate(hour = lubridate::hour(Timestamp)) %>%
   group_by(hour) %>%
-  summarise(jo = sum(Hum02))
-ggplot(Files2, aes(hour, jo)) +
+  summarise(GTD = sum(GTD), Hum = median(Hum02))
+ggplot(Files2, aes(GTD, Hum)) +
+  geom_point() +
+  geom_smooth()
+Files2 %>%
+  gather("Method", "Value", 2:3) %>%
+  ggplot(aes(hour, Value, color=Method)) +
   geom_point()
+
 
 test_spread2 <- select(test_spread, -starts_with("Hum"))
 test_spread2$GTD2 <- predict(test_md, select(test_spread, -GTD))

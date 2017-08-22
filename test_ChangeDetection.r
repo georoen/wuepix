@@ -76,7 +76,7 @@ Files <- Files[todo,]
 # Single Image
 par(mfcol = c(1,2))
 ## now
-now <- Files$Filename[27]
+now <- Files$Filename[28]
 
 now <- getImage(now)
 plotJPEG(now)
@@ -91,7 +91,8 @@ InspectROI(now) %>%
 
 
 ## old
-old <- Files$Filename[28]
+old="extra/Ref2.jpg"
+old <- Files$Filename[29]
 old <- getImage(old)
 plotJPEG(old)
 hist(old)
