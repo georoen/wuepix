@@ -51,6 +51,16 @@ histJPEG <- function(roi) {
     geom_density()
 }
 
+histStrecht <- function(x){(x-min(x))/(max(x)-min(x))}
+
+bwJPEG <- function(img){
+  #' @description Convert RGB Image to Grayscale.
+  rtn <- img[,,1]
+  rtn <- (img[,,1] + img[,,2] + img[,,3])/3
+  rtn
+}
+
+
 
 
 # Site Configuration
@@ -58,15 +68,18 @@ setwd("/home/jeremy/Dokumente/1_University/Master/Masterarbeit/method/Hubland_Mo
 img.folder  <- "IMG/"
 load("Results/GTD.RData")
 
+todo <- which(Files$GTD > 0)
+Files <- Files[todo,]
 
 
 
 # Single Image
 par(mfcol = c(1,2))
 ## now
-now <- Files$Filename[302]
+now <- Files$Filename[27]
 
 now <- getImage(now)
+plotJPEG(now)
 hist(now)
 summary(now)
 InspectROI(now) %>%
@@ -78,11 +91,17 @@ InspectROI(now) %>%
 
 
 ## old
-old <- Files$Filename[301]
+old <- Files$Filename[28]
 old <- getImage(old)
+plotJPEG(old)
 hist(old)
 summary(old)
-
+InspectROI(old) %>%
+  na.omit() %>%
+  gather("Band", "Value") %>%
+  ggplot(aes(Value, color = Band)) +
+  scale_colour_manual(values=c("Blue", "Green", "Red")) +
+  geom_density()
 
 
 
@@ -92,15 +111,26 @@ par(mfcol = c(1,1))
 
 # Image  as in CD_list
 dif <- now
-dif[] <- now[]-old[]
+dif[] <- old[]-now[]
 # plot: geht nicht
 # write: geht. Nagative werte werden 0
 hum <- dif
-#hum <- abs(dif)
+hum <- abs(dif)
 hum[which(dif<0)] <-0 # Keep only positves (now > old. Heller geworden)
-plotJPEG(hum)
+plotJPEG(histStrecht(bwJPEG(hum)))
+roi <- InspectROI(histStrecht(hum))
 roi <- InspectROI(hum)
 histJPEG(roi)
+
+testThreshold <- function(img, Min=0.1, Max=0.9){
+  img <- bwJPEG(img)
+  rtn <- img
+  rtn[] <- 0.5
+  rtn[which(img[] < Min)] <- 0
+  rtn[which(img[] > Max)] <- 1
+  plotJPEG(rtn, main=paste("Min:", Min, "Max:", Max))
+}
+lapply(seq(1,9)/10, testThreshold, img=hum)
 
 
 classified <- hum[,,1]<max & hum[,,1]>min & hum[,,2]<max & hum[,,2]>min & hum[,,3]<max & hum[,,3]>min
@@ -118,87 +148,3 @@ hist(roi)
 
 
 
-# Test Threshold
-test_threshold_min <- select(Files, -Hum)
-CD_multi <- function(Files, min, max=1){
-  cores <- detectCores()-1
-  cl <- makeCluster(cores)
-  registerDoParallel(cl)
-  old.stop <- nrow(Files)
-  new.stop <- old.stop-1
-
-  act.Data <- foreach(now=Files$Filename[1:new.stop],
-                      old=Files$Filename[2:old.stop],
-                      .combine=c) %dopar%
-    sum(wuepix::ChangeDetection(now, old, min, max))
-
-  stopCluster(cl)
-
-  act.Data <- c(act.Data,NA)
-  act.Data
-}
-test_threshold_min$Hum0005 <- CD_multi(Files, 0.005)
-test_threshold_min$Hum001 <- CD_multi(Files, 0.01)
-test_threshold_min$Hum005 <- CD_multi(Files, 0.05)
-test_threshold_min$Hum01 <- CD_multi(Files, 0.1)
-test_threshold_min$Hum02 <- CD_multi(Files, 0.2)
-test_threshold_min$Hum03 <- CD_multi(Files, 0.3)
-test_threshold_min$Hum04 <- CD_multi(Files, 0.4)
-test_threshold_min$Hum05 <- CD_multi(Files, 0.5)
-test_threshold_min$Hum06 <- CD_multi(Files, 0.6)
-test_threshold_min$Hum07 <- CD_multi(Files, 0.7)
-test_threshold_min$Hum08 <- CD_multi(Files, 0.8)
-test_threshold_min$Hum09 <- CD_multi(Files, 0.9)
-
-test_threshold_min <- test_threshold_min %>%
-  gather("Min", "Hum", 4:15) %>%
-  mutate(Min = gsub("Hum0", "0.", Min))
-
-# Acc Ass
-ggplot(Files, aes(Timestamp, GTD)) +
-  geom_jitter()
-ggplot(test_threshold_min, aes(as.factor(GTD), Hum, color=Min)) +
-  geom_boxplot()
-ggplot(test_threshold_min, aes(Timestamp, Hum, color=Min)) +
-  geom_smooth() +
-  scale_y_log10() +
-  labs(title="Logarithmic Time-Series Testing Different Thresholdes")
-
-# Calibration using purrr
-#' Best für 08 und 02. R² = 0.064
-# test_threshold_min %>%
-#   split(.$Min) %>%
-#   map(~ lm(GTD ~ Hum, data = .x)) %>%
-#   map(summary)
-test_threshold_min %>%
-  #filter(Hum > 0) %>%  # Ohne 0
-  split(.$Min) %>%
-  map(~ lm(GTD ~ Hum, data = .x)) %>%
-  map(summary)
-
-test_08 <- test_threshold_min %>%
-  filter(Min == "0.8") %>%
-  select(-Min)
-test_08 %>%
-  gather("Method", "Value", 3:4) %>%
-  ggplot(aes(Timestamp, Value, color=Method)) +
-  geom_point()
-test_08 %>%
-  ggplot(aes(as.factor(GTD), Hum)) +
-  geom_boxplot()
-
-test_02 <- test_threshold_min %>%
-  filter(Min == "0.2") %>%
-  select(-Min)
-test_02 %>%
-  gather("Method", "Value", 3:4) %>%
-  ggplot(aes(Timestamp, Value, color=Method)) +
-  geom_point()
-test_02 %>%
-  ggplot(aes(as.factor(GTD), Hum)) +
-  geom_boxplot()
-
-test_md <- lm(GTD ~ Hum08 + Hum02, data = Files)
-summary(test_md)
-test_md <- lm(GTD ~ Hum02 +Hum04 +Hum06 +Hum08, data = Files)
-summary(test_md)
