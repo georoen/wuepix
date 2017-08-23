@@ -1,35 +1,29 @@
+library(tidyverse)
+library(doParallel)
+library(foreach)
+library(wuepix)
+
+# Site Configuration
+setwd("/home/jeremy/Dokumente/1_University/Master/Masterarbeit/method/Hubland_Mo_EOI2/")
+load("Results/GTD.RData")
+
+
 # Test Threshold
 test_threshold_min <- Files %>%
   select(-starts_with("Hum"))
-CD_multi <- function(Files, min, max=1, predictions = NULL){
-  cores <- detectCores()-1
-  cl <- makeCluster(cores)
-  registerDoParallel(cl)
-  old.stop <- nrow(Files)
-  new.stop <- old.stop-1
 
-  act.Data <- foreach(now=Files$Filename[2:old.stop],
-                      old=Files$Filename[1:new.stop],
-                      .combine=c) %dopar%
-    sum(wuepix::ChangeDetection(now, old, min, max, predictions))
-
-  stopCluster(cl)
-
-  act.Data <- c(NA,act.Data)
-  act.Data
-}
-test_threshold_min$Hum005 <- CD_multi(Files, 0.05)
-test_threshold_min$Hum01 <- CD_multi(Files, 0.1)
-test_threshold_min$Hum015 <- CD_multi(Files, 0.15)
-test_threshold_min$Hum02 <- CD_multi(Files, 0.2)
-test_threshold_min$Hum025 <- CD_multi(Files, 0.25)
-test_threshold_min$Hum03 <- CD_multi(Files, 0.3)
-test_threshold_min$Hum035 <- CD_multi(Files, 0.35)
-test_threshold_min$Hum04 <- CD_multi(Files, 0.4)
-test_threshold_min$Hum045 <- CD_multi(Files, 0.45)
-test_threshold_min$Hum05 <- CD_multi(Files, 0.5)
-test_threshold_min$Hum06 <- CD_multi(Files, 0.6)
-test_threshold_min$Hum07 <- CD_multi(Files, 0.7)
+test_threshold_min$Hum005 <- CD_list(Files$Filename, 0.05)
+test_threshold_min$Hum01 <- CD_list(Files$Filename, 0.1)
+test_threshold_min$Hum015 <- CD_list(Files$Filename, 0.15)
+test_threshold_min$Hum02 <- CD_list(Files$Filename, 0.2)
+test_threshold_min$Hum025 <- CD_list(Files$Filename, 0.25)
+test_threshold_min$Hum03 <- CD_list(Files$Filename, 0.3)
+test_threshold_min$Hum035 <- CD_list(Files$Filename, 0.35)
+test_threshold_min$Hum04 <- CD_list(Files$Filename, 0.4)
+test_threshold_min$Hum045 <- CD_list(Files$Filename, 0.45)
+test_threshold_min$Hum05 <- CD_list(Files$Filename, 0.5)
+test_threshold_min$Hum06 <- CD_list(Files$Filename, 0.6)
+test_threshold_min$Hum07 <- CD_list(Files$Filename, 0.7)
 
 test_threshold_min <- test_threshold_min %>%
   gather("Min", "Hum", 4:15) %>%
@@ -93,17 +87,19 @@ summary(test_md)
 
 # Calibration Durchburch ?!
 Files2 <- test_spread %>%
-  mutate(hour = lubridate::hour(Timestamp)) %>%
-  group_by(hour) %>%
+  mutate(Timestamp = lubridate::round_date(Timestamp, "30M")) %>%
+  group_by(Timestamp) %>%
   summarise(GTD = sum(GTD), Hum = median(Hum02))
 ggplot(Files2, aes(GTD, Hum)) +
   geom_point() +
   geom_smooth()
 Files2 %>%
   gather("Method", "Value", 2:3) %>%
-  ggplot(aes(hour, Value, color=Method)) +
+  ggplot(aes(Timestamp, Value, color=Method)) +
   geom_point()
-
+cor.test(Files2$GTD, Files2$Hum)
+test_md <- lm(GTD ~ Hum, data = Files2)
+summary(test_md)
 
 test_spread2 <- select(test_spread, -starts_with("Hum"))
 test_spread2$GTD2 <- predict(test_md, select(test_spread, -GTD))

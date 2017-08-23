@@ -2,25 +2,25 @@
 % Please edit documentation in R/fun_ChangeDetection.r
 \name{CD_single}
 \alias{CD_single}
-\title{Detect change.difs using image differencing}
+\title{Change Detection}
 \usage{
-CD_single(now, old, min = 30/255, max = 220/255, extend = NULL)
+CD_single(file.now, file.old, min = 0.2, max = 1, predictions = NULL,
+  extend = NULL, plot = FALSE)
 }
 \arguments{
-\item{now}{Path to first image}
-
-\item{old}{Path to second image}
-
 \item{min}{Threshold for positive classification}
 
 \item{max}{Threshold for positive classification}
 
+\item{predictions}{dir path to where to store prediction images}
+
 \item{extend}{DEPECATED!
 Used to crop images. Has been moved to a seperate preprocess step.}
+
+\item{now}{Path to first image}
+
+\item{old}{Path to second image}
 }
 \value{
 Classification result. Here work is in progess...
-}
-\description{
-in a single image.
 }

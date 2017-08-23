@@ -1,36 +1,37 @@
 #' @author Jeroen Staab
-ChangeDetection <- function(now, old, min=30/255, max=220/255, extend=NULL){
+# getImage
+getImage <- function(filename, extend=NULL, plot=FALSE){
+  ## load JPEGs and preprocess them
+  #' filename Path to first image
+  #' extend Optional extend to crop image, numeric vector.
+  #' plot Optional plot loaded image, boolean.
   #' @import jpeg
-  #' @title  Detect change.difs using image differencing
+  file <- jpeg::readJPEG(filename)
+  if(!is.null(extend)){file <- file[extend[1]:extend[2], extend[3]:extend[4], ]}
+  if(plot)
+    JPEG_plot(file, filename)
+  return(file)
+}
+
+CD_single <- function(file.now, file.old, min=0.2, max=1, predictions=NULL,
+                      extend=NULL, plot=FALSE){
+  #' @title Change Detection
+  #' @title  Detect changes between two images using image differencing
   #'
   #' @param now Path to first image
   #' @param old Path to second image
   #' @param min Threshold for positive classification
   #' @param max Threshold for positive classification
+  #' @param predictions dir path to where to store prediction images
   #' @param extend DEPECATED!
   #' Used to crop images. Has been moved to a seperate preprocess step.
   #'
   #' @return Classification result. Here work is in progess...
 
 
-  #Function:
-  ## getImage
-  ## load JPEGs and preprocess them
-  getImage <- function(filename, extend=NULL){
-    file <- jpeg::readJPEG(filename)
-    if(!is.null(extend)){file <- file[extend[1]:extend[2], extend[3]:extend[4], ]}
-    #plotJPEG(file, filename)
-    return(file)
-  }
-
-
   # Load Images
-  now <- getImage(now, extend)
-  old <- getImage(old, extend)
-
-  #now <- getImage("now.jpg", extend)
-  #old <- getImage("old.jpg", extend)
-
+  now <- getImage(file.now, extend, plot)
+  old <- getImage(file.old, extend, plot)
 
 
   # Image difference
@@ -40,9 +41,12 @@ ChangeDetection <- function(now, old, min=30/255, max=220/255, extend=NULL){
 
   # Absolute Values cuz change.dif Direction doesn't matter. Due to different ligth exposures.
   hum <- abs(dif)
-  hum[which(dif<0)] <-0 # Keep only positves
+  hum[which(dif<0)] <-0 # Keep only positves (now > old. Heller geworden)
 
-
+  if(!is.null(predictions)){
+    dir.create(predictions)
+    jpeg::writeJPEG(hum, file.path(predictions, basename(file.now)))
+  }
 
   # Classify Humans
   ###! this is experimental !###
@@ -58,69 +62,33 @@ ChangeDetection <- function(now, old, min=30/255, max=220/255, extend=NULL){
 }
 
 
-CD_single <- function(now, old, min=30/255, max=220/255, extend=NULL){
-  #' @import jpeg
-  #' @title  Detect change.difs using image differencing
-  #' @description in a single image.
+CD_list <- function(img.list, ...){
+  #' @title Change Detection
+  #' @description Detect changes using image differencing for a list of images.
+  #' Includes parallel processing.
   #'
-  #' @param now Path to first image
-  #' @param old Path to second image
-  #' @param min Threshold for positive classification
-  #' @param max Threshold for positive classification
-  #' @param extend DEPECATED!
-  #' Used to crop images. Has been moved to a seperate preprocess step.
+  #' @param img.list file path to images.
+  #' @param ... Arguments passed to CD_single().
   #'
   #' @return Classification result. Here work is in progess...
+  #'
+  #' @import doParallel
+  #' @import foreach
+  `%dopar%` <- foreach::`%dopar%`
 
+  cores <- parallel::detectCores()-1
+  cl <-parallel:: makeCluster(cores)
+  doParallel::registerDoParallel(cl)
+  old.stop <- length(img.list)
+  new.stop <- old.stop-1
 
-  #Function:
-  ## getImage
-  ## load JPEGs and preprocess them
-  getImage <- function(filename, extend=NULL){
-    file <- jpeg::readJPEG(filename)
-    if(!is.null(extend)){file <- file[extend[1]:extend[2], extend[3]:extend[4], ]}
-    #plotJPEG(file, filename)
-    return(file)
-  }
+  act.Data <- foreach::foreach(now=img.list[2:old.stop],
+                      old=img.list[1:new.stop],
+                      .combine=c) %dopar%
+    sum(wuepix::CD_single(now, old, ...))
 
+  parallel::stopCluster(cl)
 
-  #now <- "ROI/Ref.jpg"
-  #old <- "ROI/Ref_background.jpg"
-  # Load Images
-  now <- getImage(now, extend)
-  old <- getImage(old, extend)
-
-  # Differerce
-  change.dif <- now
-  change.dif[] <- now[] - old[]
-  hist(change.dif)
-  range(change.dif)
-
-  change.dif[] <- (change.dif[] +1) /2
-
-  plotJPEG(change.dif)
-
-  # Absolute Differerce
-  change.abs <- now
-  change.abs[] <- abs(now[] - old[])
-  hist(change.abs)
-
-  plotJPEG(change.abs)
-
-  change.abs[] <- round(change.abs[], 1)
-
-  plotJPEG(change.abs[,,3])
-
-
-
-  # Dummmy
-  change.new <- now
-  change.new[] <- abs(now[] - old[])
-  hist(change.new)
-  range(change.new)
-
-  change.new[] <- (change.new[] +1) /2
-
-  plotJPEG(change.new)
-
+  act.Data <- c(NA,act.Data)
+  act.Data
 }
