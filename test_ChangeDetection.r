@@ -11,16 +11,16 @@ library(wuepix)
 
 # Site Configuration
 setwd("/home/jeremy/Dokumente/1_University/Master/Masterarbeit/method/Hubland_Mo_EOI2/")
-img.folder  <- "IMG/"
 load("Results/GTD.RData")
 
+Min <- 0.2
+Max <- 1
 
 
 # Single Image
 #par(mfcol = c(1,2))
 ## now
-now <- Files$Filename[28]
-
+now <- Files$Filename[550]
 now <- getImage(now, plot = TRUE)
 hist(now)
 summary(now)
@@ -28,7 +28,7 @@ ROI_hist(ROI_draw(now))
 
 ## old
 old="extra/Ref2.jpg"
-old <- Files$Filename[29]
+old <- Files$Filename[551]
 old <- getImage(old, plot = TRUE)
 hist(old)
 summary(old)
@@ -37,11 +37,37 @@ ROI_hist(ROI_draw(old))
 
 
 # Change Detection
-#par(mfcol = c(1,1))
-
-# Image  as in CD_list
+# Image difference
 dif <- now
-dif[] <- old[]-now[]
+dif[] <- now[]-old[]
+summary(dif)
+JPEG_plot(dif)
+
+JPEG_plot(JPEG_histStrecht(dif))
+
+# Absolute Values cuz change.dif Direction doesn't matter. Due to different ligth exposures.
+hum <- abs(dif)
+JPEG_plot(JPEG_histStrecht(hum))
+hum[which(dif<0)] <-0 # Keep only positves (now > old. Heller geworden)
+JPEG_plot(JPEG_histStrecht(hum))
+JPEG_plot(JPEG_grayscale(JPEG_histStrecht(hum)))  # Dont: Grayscaling ruins effect
+
+
+if(!is.null(predictions)){
+  dir.create(predictions)
+  jpeg::writeJPEG(hum, file.path(predictions, basename(file.now)))
+}
+
+# Classify Humans
+###! this is experimental !###
+### Himmelsrichtung: Von Osten. Position: Mittleres Kaufhaus 3.Stock (Whörl?), Richtung Westen (Festung).
+## Treshold as from day one.
+classified <- hum[,,1]<Max & hum[,,1]>Min & hum[,,2]<Max & hum[,,2]>Min & hum[,,3]<Max & hum[,,3]>Min
+
+hum[classified]<-1
+hum[!classified]<-0
+
+
 # plot: geht nicht
 # write: geht. Nagative werte werden 0
 hum <- dif

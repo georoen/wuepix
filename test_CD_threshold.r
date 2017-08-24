@@ -1,6 +1,4 @@
 library(tidyverse)
-library(doParallel)
-library(foreach)
 library(wuepix)
 
 # Site Configuration
@@ -10,10 +8,11 @@ load("Results/GTD.RData")
 
 # Test Threshold
 test_threshold_min <- Files %>%
+  arrange(Timestamp) %>%
   select(-starts_with("Hum"))
 
-test_threshold_min$Hum005 <- CD_list(Files$Filename, 0.05)
-test_threshold_min$Hum01 <- CD_list(Files$Filename, 0.1)
+#test_threshold_min$Hum005 <- CD_list(Files$Filename, 0.05)
+#test_threshold_min$Hum01 <- CD_list(Files$Filename, 0.1)
 test_threshold_min$Hum015 <- CD_list(Files$Filename, 0.15)
 test_threshold_min$Hum02 <- CD_list(Files$Filename, 0.2)
 test_threshold_min$Hum025 <- CD_list(Files$Filename, 0.25)
@@ -22,89 +21,59 @@ test_threshold_min$Hum035 <- CD_list(Files$Filename, 0.35)
 test_threshold_min$Hum04 <- CD_list(Files$Filename, 0.4)
 test_threshold_min$Hum045 <- CD_list(Files$Filename, 0.45)
 test_threshold_min$Hum05 <- CD_list(Files$Filename, 0.5)
-test_threshold_min$Hum06 <- CD_list(Files$Filename, 0.6)
-test_threshold_min$Hum07 <- CD_list(Files$Filename, 0.7)
+#test_threshold_min$Hum06 <- CD_list(Files$Filename, 0.6)
+#test_threshold_min$Hum07 <- CD_list(Files$Filename, 0.7)
 
-test_threshold_min <- test_threshold_min %>%
-  gather("Min", "Hum", 4:15) %>%
-  mutate(Min = gsub("Hum0", "0.", Min))
+# Aggregation
+test_aggregation <- test_threshold_min %>%
+  gather("Min", "Hum", 4:11) %>%
+  mutate(Min = gsub("Hum0", "0.", Min))  %>%
+  mutate(Timestamp = lubridate::round_date(Timestamp, "5M")) %>%  # 15 Minutes
+  group_by(Timestamp, Min) %>%
+  summarise(GTD = sum(GTD), Hum = median(Hum, na.rm=TRUE))
 
-# Acc Ass
-ggplot(Files, aes(Timestamp, GTD)) +
-  geom_jitter()
-ggplot(test_threshold_min, aes(as.factor(GTD), Hum, color=Min)) +
-  geom_boxplot() +
-  scale_y_log10()
-ggplot(test_threshold_min, aes(Timestamp, Hum, color=Min)) +
-  geom_smooth() +
+ggplot(test_aggregation, aes(Timestamp, Hum, color=Min)) +
+  geom_line() +
   scale_y_log10() +
+  labs(title="Logarithmic Time-Series Testing Different Thresholdes")
+ggplot(test_aggregation, aes(as.factor(GTD), Hum, color=Min)) +
+  geom_boxplot()+
+  scale_y_log10() +
+  labs(title="Logarithmic Time-Series Testing Different Thresholdes")
+ggplot(test_aggregation, aes(as.factor(GTD), Hum, color=Min)) +
+  geom_boxplot()+
+  #scale_y_log10() +
+  facet_wrap(~Min, scales = "free") +
+  geom_smooth() +
   labs(title="Logarithmic Time-Series Testing Different Thresholdes")
 
 
 # Calibration using purrr
-#' Best für 08 und 02. R² = 0.064
-# test_threshold_min %>%
-#   split(.$Min) %>%
-#   map(~ lm(GTD ~ Hum, data = .x)) %>%
-#   map(summary)
-test_threshold_min %>%
-  #filter(Hum > 0) %>%  # Ohne 0
+test_calibration <- test_aggregation %>%
   split(.$Min) %>%
   map(~ lm(GTD ~ Hum, data = .x)) %>%
   map(summary)
+test_calibration
 
-test_08 <- test_threshold_min %>%
-  filter(Min == "0.8") %>%
+# Proceed with best fit
+## Select best
+r.squares <- map_dbl(test_calibration, "r.squared")
+best <- which(r.squares == max(r.squares))
+print(paste("Best fit for Min =", names(best),
+            "where R-squared =", round(r.squares[best],3)))
+best_aggregation <- test_aggregation %>%
+  filter(Min == names(best)) %>%
   select(-Min)
-test_08 %>%
-  gather("Method", "Value", 3:4) %>%
-  ggplot(aes(Timestamp, Value, color=Method)) +
-  geom_point()
-test_08 %>%
-  ggplot(aes(as.factor(GTD), Hum)) +
-  geom_boxplot()
-
-test_02 <- test_threshold_min %>%
-  filter(Min == "0.2") %>%
-  select(-Min)
-test_02 %>%
-  gather("Method", "Value", 3:4) %>%
-  ggplot(aes(Timestamp, Value, color=Method)) +
-  geom_smooth()
-test_02 %>%
-  ggplot(aes(as.factor(GTD), Hum)) +
-  geom_boxplot()
-
-test_spread <- test_threshold_min %>%
-  spread(Min, Hum)
-names(test_spread) <- sub("0.", "Hum0", names(test_spread))
-test_md <- lm(GTD ~ Hum02, data = test_spread)
-summary(test_md)
-test_md <- lm(GTD ~ Hum08 + Hum02, data = test_spread)
-summary(test_md)
-test_md <- lm(GTD ~ Hum02 +Hum04 +Hum06 +Hum08, data = test_spread)
-summary(test_md)
-
-# Calibration Durchburch ?!
-Files2 <- test_spread %>%
-  mutate(Timestamp = lubridate::round_date(Timestamp, "30M")) %>%
-  group_by(Timestamp) %>%
-  summarise(GTD = sum(GTD), Hum = median(Hum02))
-ggplot(Files2, aes(GTD, Hum)) +
-  geom_point() +
-  geom_smooth()
-Files2 %>%
+plot(best_aggregation$GTD, best_aggregation$Hum)
+cor.test(best_aggregation$GTD, best_aggregation$Hum)
+## Model
+best_calibration <- lm(GTD ~ Hum, data = best_aggregation)
+summary(best_calibration)
+best_aggregation$Results <- predict(best_calibration,
+                                    select(best_aggregation, -GTD))
+## Plot
+best_aggregation %>%
+  select(-Hum) %>%
   gather("Method", "Value", 2:3) %>%
   ggplot(aes(Timestamp, Value, color=Method)) +
   geom_point()
-cor.test(Files2$GTD, Files2$Hum)
-test_md <- lm(GTD ~ Hum, data = Files2)
-summary(test_md)
-
-test_spread2 <- select(test_spread, -starts_with("Hum"))
-test_spread2$GTD2 <- predict(test_md, select(test_spread, -GTD))
-cor.test(test_spread2$GTD, test_spread2$GTD2)
-
-
-ggplot(test_spread, aes(as.factor(GTD), Hum02)) +
-  geom_boxplot()

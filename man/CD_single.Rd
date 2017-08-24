@@ -4,13 +4,13 @@
 \alias{CD_single}
 \title{Change Detection}
 \usage{
-CD_single(file.now, file.old, min = 0.2, max = 1, predictions = NULL,
+CD_single(file.now, file.old, Min = 0.2, Max = 1, predictions = NULL,
   extend = NULL, plot = FALSE)
 }
 \arguments{
-\item{min}{Threshold for positive classification}
+\item{Min}{Threshold for positive classification}
 
-\item{max}{Threshold for positive classification}
+\item{Max}{Threshold for positive classification}
 
 \item{predictions}{dir path to where to store prediction images}
 
