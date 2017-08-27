@@ -11,13 +11,17 @@ JPEG_plot <- function(img, main=NULL){
   #'
 
   # Check img
-  if(min(img)<0){
+  if(min(img, na.rm = TRUE) < 0){
     warning("img contains negative values. Pixels < 0 will be set to 0 as in
             jpeg::writeJPEG().")
     img[which(img[] < 0)] <- 0
   }
   # Filter NaN
-  img[which(is.nan(img[]) | is.na(img[]))] <- 0
+  if(TRUE %in% c(is.nan(img[]) | is.na(img[]))){
+    warning("img contains NA values. Pixels < 0 will be set to 0")
+    img[which(is.nan(img[]) | is.na(img[]))] <- 0
+  }
+
   # Range if nessecary
   # range01 <- function(x){(x-min(x))/(max(x)-min(x))}
   # if(min(img)<0 | max(img) >1)
@@ -37,7 +41,8 @@ JPEG_histStrecht <- function(img){
   #' further processing (i.e. Change Detection) may be limited due altered values.
   #' @param img A raster object.
   #' @return same as input, but ranged between 0 and 1 (nummeric).
-  (img-min(img))/(max(img)-min(img))
+  img[is.infinite(img)] <- NA
+  (img-min(img, na.rm = TRUE))/(max(img, na.rm = TRUE)-min(img, na.rm = TRUE))
 }
 
 JPEG_grayscale <- function(img, red=1/3, green=1/3, blue=1/3){

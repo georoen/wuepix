@@ -5,7 +5,7 @@
 \title{Change Detection}
 \usage{
 CD_single(file.now, file.old, Min = 0.2, Max = 1, predictions = NULL,
-  extend = NULL, plot = FALSE)
+  extend = NULL, plot = FALSE, method = "ratio")
 }
 \arguments{
 \item{Min}{Threshold for positive classification}
@@ -16,6 +16,10 @@ CD_single(file.now, file.old, Min = 0.2, Max = 1, predictions = NULL,
 
 \item{extend}{DEPECATED!
 Used to crop images. Has been moved to a seperate preprocess step.}
+
+\item{method}{Select change detection method.
+"ratio" Image Rationing. "diff" Image Differencing, absolute changes in
+both directions. "diff+" Image Differencing, positive changes only.}
 
 \item{now}{Path to first image}
 
