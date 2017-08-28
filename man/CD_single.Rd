@@ -5,7 +5,7 @@
 \title{Change Detection}
 \usage{
 CD_single(file.now, file.old, Min = 0.2, Max = 1, predictions = NULL,
-  extend = NULL, plot = FALSE, method = "ratio")
+  extend = NULL, plot = FALSE, method = "diff")
 }
 \arguments{
 \item{Min}{Threshold for positive classification}

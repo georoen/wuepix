@@ -14,7 +14,7 @@ getImage <- function(filename, extend=NULL, plot=FALSE){
 }
 
 CD_single <- function(file.now, file.old, Min=0.2, Max=1, predictions=NULL,
-                      extend=NULL, plot=FALSE, method = "ratio"){
+                      extend=NULL, plot=FALSE, method = "diff"){
   #' @title Change Detection
   #' @title  Detect changes between two images using image differencing
   #'
@@ -71,7 +71,8 @@ CD_single <- function(file.now, file.old, Min=0.2, Max=1, predictions=NULL,
   method_ratio <- function(now, old, Min, Max) {
     # Image Ratio. Absolute changes (both)
     dif <- now
-    dif[] <- atan(now[]/old[]) - pi/4  # As in ILSEVER 2012 p.11
+    dif[] <- log((now[]+0.0001)/(old[]+0.0001))  # As in BERBERGOLU 2008 p.48
+    #dif[] <- atan(now[]/old[]) - pi/4  # As in ILSEVER 2012 p.11
     # Absolute Values cuz change.dif Direction doesn't matter. Due to different ligth exposures.
     hum <- abs(dif)
     #hum[which(dif<0)] <-0 # Keep only positves (now > old. Heller geworden)
@@ -82,6 +83,14 @@ CD_single <- function(file.now, file.old, Min=0.2, Max=1, predictions=NULL,
     hum[!classified]<-0
     hum[,,1]
   }
+
+  method_t_test <- function(now, old, Min, Max){
+    # As in RADKE 2005 p. 299
+    hum <- t.test(now[], old[])$p.value
+    #hum <- hum > Min & hum < Max
+    as.numeric(hum)
+  }
+
   # Select change detion method
   method <- paste0("method_", method)
   if(!method %in% ls(environment()))
