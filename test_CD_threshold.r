@@ -11,7 +11,8 @@ test_threshold_min <- Files %>%
   arrange(Timestamp) %>%
   select(-starts_with("Hum"))
 
-method <- "diff"# "ratio"
+method <- "diff"  # "ratio"  # ChangeDetection Method ?wuepix::CD_list()
+T_scale <- "60M"  # "60M"  # Aggregation scale ?lubridate::round_date()
 test_threshold_min$Hum005 <- CD_list(Files$Filename, 0.05, method = method)
 test_threshold_min$Hum01 <- CD_list(Files$Filename, 0.1, method = method)
 test_threshold_min$Hum015 <- CD_list(Files$Filename, 0.15, method = method)
@@ -29,7 +30,7 @@ test_threshold_min$Hum05 <- CD_list(Files$Filename, 0.5, method = method)
 test_aggregation <- test_threshold_min %>%
   gather("Min", "Hum", 4:13) %>%
   mutate(Min = gsub("Hum0", "0.", Min))  %>%
-  mutate(Timestamp = lubridate::round_date(Timestamp, "20M")) %>%  # 15 Minutes
+  mutate(Timestamp = lubridate::floor_date(Timestamp, T_scale)) %>%  # 15 Minutes
   group_by(Timestamp, Min) %>%
   summarise(GTD = sum(GTD), Hum = mean(Hum, na.rm=TRUE))
 
