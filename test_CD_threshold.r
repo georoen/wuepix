@@ -23,12 +23,19 @@ test_threshold_min$Hum035 <- CD_list(Files$Filename, 0.35, method = method)
 test_threshold_min$Hum04 <- CD_list(Files$Filename, 0.4, method = method)
 test_threshold_min$Hum045 <- CD_list(Files$Filename, 0.45, method = method)
 test_threshold_min$Hum05 <- CD_list(Files$Filename, 0.5, method = method)
-#test_threshold_min$Hum06 <- CD_list(Files$Filename, 0.6, method = method)
-#test_threshold_min$Hum07 <- CD_list(Files$Filename, 0.7, method = method)
+test_threshold_min$Hum055 <- CD_list(Files$Filename, 0.55, method = method)
+test_threshold_min$Hum06 <- CD_list(Files$Filename, 0.6, method = method)
+test_threshold_min$Hum065 <- CD_list(Files$Filename, 0.65, method = method)
+test_threshold_min$Hum07 <- CD_list(Files$Filename, 0.7, method = method)
+test_threshold_min$Hum075 <- CD_list(Files$Filename, 0.75, method = method)
+test_threshold_min$Hum08 <- CD_list(Files$Filename, 0.8, method = method)
+test_threshold_min$Hum085 <- CD_list(Files$Filename, 0.85, method = method)
+test_threshold_min$Hum09 <- CD_list(Files$Filename, 0.9, method = method)
+test_threshold_min$Hum095 <- CD_list(Files$Filename, 0.95, method = method)
 
 # Aggregation
 test_aggregation <- test_threshold_min %>%
-  gather("Min", "Hum", 4:13) %>%
+  gather("Min", "Hum", 4:length(test_threshold_min)) %>%
   mutate(Min = gsub("Hum0", "0.", Min))  %>%
   mutate(Timestamp = lubridate::floor_date(Timestamp, T_scale)) %>%  # 15 Minutes
   group_by(Timestamp, Min) %>%
@@ -73,12 +80,6 @@ best_aggregation$Prediction <- round(best_aggregation$Prediction)
 
 ## Plot
 best_aggregation %>%
-  select(-Hum) %>%
-  gather("Method", "Value", 2:3) %>%
-  ggplot(aes(Timestamp, Value, color=Method, size=Method=="GTD")) +
-  geom_line()
-
-best_aggregation %>%
   group_by(GTD, Prediction) %>%
   count() %>%
 ggplot(aes(GTD, Prediction, size = n)) +
@@ -88,3 +89,27 @@ ggplot(aes(GTD, Prediction, size = n)) +
   #geom_abline(intercept = best_calibration$coefficients[1],
   #            slope = best_calibration$coefficients[2]) +
   #geom_smooth()
+
+# FIG_Scatterplot+LinearModel
+best_aggregation %>%
+  ggplot(aes(Hum, GTD)) +
+  geom_point() +
+  geom_abline(slope = best_calibration$coefficients[1], color = "Red") +
+  labs(title = "Scatterplot and Linear Model",
+       x = expression(paste("Number of Changed Pixels (", H[T], ")")),
+       y = "Visitor Number (GTD)")
+ggsave("FIG_Scatterplot+LinearModel.png", units = "cm", width = 15, height = 8)
+
+
+# FIG_V-Timeseries
+best_aggregation %>%
+  select(-Hum) %>%
+  gather("Method", "Value", 2:3) %>%
+  #mutate(Method = factor(Method, levels=c("Prediction", "GTD"), order = TRUE)) %>%
+  ggplot(aes(Timestamp, Value, color=Method)) +
+  geom_line(size = 1) +
+  scale_color_manual("Legend", values = c("Gray", "#F8766D")) +
+  #scale_size_manual(values =c(2,1))
+  labs(title = "Visitor Numbers at Hubland",
+       y = expression(paste("Number of Detected Visitors (", V[T], ")")))
+ggsave("FIG_V-Timeseries.png", units = "cm", width = 15, height = 8)
