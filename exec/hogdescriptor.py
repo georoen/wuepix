@@ -13,6 +13,12 @@ import cv2
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--images", required=True, help="path to images directory")
+ap.add_argument("-x", "--resize", default=1, type=float, help="multiplyer rescaling image")
+ap.add_argument("-w", "--winStride", default='4', type=int, help="...")
+ap.add_argument("-p", "--padding", default='8', type=int, help="...")
+ap.add_argument("-s", "--scale", default=1.05, type=float, help="...")
+ap.add_argument("-o", "--output", help="...")
+
 args = vars(ap.parse_args())
 
 # initialize the HOG descriptor/person detector
@@ -26,12 +32,12 @@ for imagePath in imagePaths:
 	# load the image and resize it to (1) reduce detection time
 	# and (2) improve detection accuracy
 	image = cv2.imread(imagePath)
-	image = imutils.resize(image, width=min(400, image.shape[1]))
+	image = imutils.resize(image, width=int(image.shape[1] * args["resize"]))
 	orig = image.copy()
 
 	# detect people in the image
-	(rects, weights) = hog.detectMultiScale(image, winStride=(4, 4),
-		padding=(8, 8), scale=1.05)
+	(rects, weights) = hog.detectMultiScale(image, winStride=(args["winStride"], args["winStride"]),
+		padding=(args["padding"], args["padding"]), scale=args["scale"])
 
 	# draw the original bounding boxes
 	for (x, y, w, h) in rects:
@@ -51,12 +57,14 @@ for imagePath in imagePaths:
 	filename = imagePath[imagePath.rfind("/") + 1:]
 	#print("[INFO] {}: {} original boxes, {} after suppression".format(filename, len(rects), len(pick)))
 	print(len(pick))
-	
+
 	# show the output images
 	#cv2.imshow("Before NMS", orig)
 	#cv2.imshow("After NMS", image)
 	#cv2.waitKey(0)
-	
+	if type(args["output"]) == str:
+	  cv2.imwrite(args["output"] + filename, image)
+
 	# Write CSV
 	log = filename
 	log +=";"
