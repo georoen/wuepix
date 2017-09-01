@@ -1,6 +1,6 @@
 #' @author Jeroen Staab
-hog_dir <- function(img.folder, resize = 1, winStride = 4, padding = 8,
-                    scale = 1.05, predictions = NULL) {
+hog_dir <- function(img.list, resize = 1, winStride = 4, padding = 8,
+                    Mscale = 1.05, predictions = NULL) {
   #' @title Detect pedestrians using HOGDescriptor
   #' @description Detect objects using HOG+SVM (implemented in OpenCV) in all Files/Images of 'path'
   #' @details Python and OpenCV have to be installed. Tested on Linux only.
@@ -10,10 +10,12 @@ hog_dir <- function(img.folder, resize = 1, winStride = 4, padding = 8,
   #' @usage hog(img.folder)
   #'
   #' @param img.folder Path to (preprocessed) image archive
-  #' @param resize
-  #' @param scale Not implemented yet!
-  #' @param winStride Not implemented yet!
+  #' @param resize Numeric factor resizing image in integrated pre-processing
+  #' step. E.g. 2 will double the image extent. People should be 100 pixels high.
+  #' @param winStride Window stride. It must be a multiple of block stride.
   #' @param padding Not implemented yet!
+  #' @param Mscale Numeric. Allows multi-scale detection. Coefficient of the detection
+  #' window increase.
   #' @param predictions
   #'
   #' @return Numeric vector with number of detected persons.
@@ -22,9 +24,14 @@ hog_dir <- function(img.folder, resize = 1, winStride = 4, padding = 8,
   hog.bin <- paste0(system.file(package = "wuepix"), "/exec/hogdescriptor.py")
   #hog.bin <- "~/Programmierung/Masterarbeit/method/code_obia/detect.py"
 
+  # Write img.list
+  img.list.tmp <- tempfile()
+  cat(img.list, sep = ",", file = img.list.tmp)
+  #write.table(img.list, file = img.list.tmp, row.names = FALSE, col.names = FALSE, eol = "", quote = FALSE, sep=",")
+
   # Classification
-  cmd <- paste("python", hog.bin, "-i", img.folder, "-x", resize,
-               "-w", winStride, "-p", padding, "-s", scale)
+  cmd <- paste("python", hog.bin, "-i", img.list.tmp, "-x", resize,
+               "-w", winStride, "-p", padding, "-s", Mscale)
 
   if(!is.null(predictions))
     cmd <- paste(cmd, "-o", predictions)

@@ -20,14 +20,17 @@ ap.add_argument("-s", "--scale", default=1.05, type=float, help="...")
 ap.add_argument("-o", "--output", help="...")
 
 args = vars(ap.parse_args())
-
+listtmp = args["images"]
 # initialize the HOG descriptor/person detector
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 # loop over the image paths
-imagePaths = list(paths.list_images(args["images"]))
-
+#imagePaths = list(paths.list_images(args["images"]))
+text_file = open(listtmp, "r")
+imagePaths = list(text_file.read().split(','))
+#f = open('file_name.ext', 'r')
+#imagePaths = text_file.readlines()
 for imagePath in imagePaths:
 	# load the image and resize it to (1) reduce detection time
 	# and (2) improve detection accuracy
@@ -36,6 +39,7 @@ for imagePath in imagePaths:
 	orig = image.copy()
 
 	# detect people in the image
+	# http://docs.opencv.org/2.4/modules/gpu/doc/object_detection.html#gpu-hogdescriptor-detectmultiscale
 	(rects, weights) = hog.detectMultiScale(image, winStride=(args["winStride"], args["winStride"]),
 		padding=(args["padding"], args["padding"]), scale=args["scale"])
 

@@ -7,15 +7,19 @@
 hog(img.folder)
 }
 \arguments{
-\item{img.folder}{Path to (preprocessed) image archive}
+\item{resize}{Numeric factor resizing image in integrated pre-processing
+step. E.g. 2 will double the image extent. People should be 100 pixels high.}
 
-\item{winStride}{Not implemented yet!}
+\item{winStride}{Window stride. It must be a multiple of block stride.}
 
 \item{padding}{Not implemented yet!}
 
-\item{scale}{Not implemented yet!}
+\item{Mscale}{Numeric. Allows multi-scale detection. Coefficient of the detection
+window increase.}
 
 \item{predictions}{}
+
+\item{img.folder}{Path to (preprocessed) image archive}
 }
 \value{
 Numeric vector with number of detected persons.
