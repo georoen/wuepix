@@ -1,6 +1,6 @@
 #' @author Jeroen Staab
-hog_dir <- function(img.list, resize = 1, winStride = 4, padding = 8,
-                    Mscale = 1.05, predictions = NULL) {
+hog_list <- function(img.list, winStride = 4, padding = 8,
+                    Mscale = 1.05, resize = 1, predictions = NULL) {
   #' @title Detect pedestrians using HOGDescriptor
   #' @description Detect objects using HOG+SVM (implemented in OpenCV) in all Files/Images of 'path'
   #' @details Python and OpenCV have to be installed. Tested on Linux only.
