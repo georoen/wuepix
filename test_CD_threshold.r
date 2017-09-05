@@ -2,10 +2,10 @@ library(tidyverse)
 library(wuepix)
 
 # Site Configuration
-# setwd("~/Programmierung/Masterarbeit/method/Schorfheide/Kloster")
-setwd("/home/jeremy/Dokumente/1_University/Master/Masterarbeit/method/Hubland_Mo_EOI2/")
+setwd("~/Programmierung/Masterarbeit/method/Chorin")
+#setwd("~/Dokumente/1_University/Master/Masterarbeit/method/Hubland_Mo_EOI2/")
 load("Results/GTD.RData")
-
+Files$Timestamp <- as.POSIXct(Files$Timestamp)
 
 # Test Threshold
 test_threshold_min <- Files %>%
@@ -14,25 +14,25 @@ test_threshold_min <- Files %>%
 
 method <- "diff"  # "ratio"  # ChangeDetection Method ?wuepix::CD_list()
 T_scale <- "60M"  # "60M"  # Aggregation scale ?lubridate::round_date()
-test_threshold_min$Hum005 <- CD_list(Files$Filename, 0.05, method = method)
-test_threshold_min$Hum01 <- CD_list(Files$Filename, 0.1, method = method)
-test_threshold_min$Hum015 <- CD_list(Files$Filename, 0.15, method = method)
-test_threshold_min$Hum02 <- CD_list(Files$Filename, 0.2, method = method)
-test_threshold_min$Hum025 <- CD_list(Files$Filename, 0.25, method = method)
-test_threshold_min$Hum03 <- CD_list(Files$Filename, 0.3, method = method)
-test_threshold_min$Hum035 <- CD_list(Files$Filename, 0.35, method = method)
-test_threshold_min$Hum04 <- CD_list(Files$Filename, 0.4, method = method)
-test_threshold_min$Hum045 <- CD_list(Files$Filename, 0.45, method = method)
-test_threshold_min$Hum05 <- CD_list(Files$Filename, 0.5, method = method)
-test_threshold_min$Hum055 <- CD_list(Files$Filename, 0.55, method = method)
-test_threshold_min$Hum06 <- CD_list(Files$Filename, 0.6, method = method)
-test_threshold_min$Hum065 <- CD_list(Files$Filename, 0.65, method = method)
-test_threshold_min$Hum07 <- CD_list(Files$Filename, 0.7, method = method)
-test_threshold_min$Hum075 <- CD_list(Files$Filename, 0.75, method = method)
-test_threshold_min$Hum08 <- CD_list(Files$Filename, 0.8, method = method)
-test_threshold_min$Hum085 <- CD_list(Files$Filename, 0.85, method = method)
-test_threshold_min$Hum09 <- CD_list(Files$Filename, 0.9, method = method)
-test_threshold_min$Hum095 <- CD_list(Files$Filename, 0.95, method = method)
+test_threshold_min$Hum005 <- CD_list(test_threshold_min$Filename, 0.05, method = method)
+test_threshold_min$Hum01 <- CD_list(test_threshold_min$Filename, 0.1, method = method)
+test_threshold_min$Hum015 <- CD_list(test_threshold_min$Filename, 0.15, method = method)
+test_threshold_min$Hum02 <- CD_list(test_threshold_min$Filename, 0.2, method = method)
+test_threshold_min$Hum025 <- CD_list(test_threshold_min$Filename, 0.25, method = method)
+test_threshold_min$Hum03 <- CD_list(test_threshold_min$Filename, 0.3, method = method)
+test_threshold_min$Hum035 <- CD_list(test_threshold_min$Filename, 0.35, method = method)
+test_threshold_min$Hum04 <- CD_list(test_threshold_min$Filename, 0.4, method = method)
+test_threshold_min$Hum045 <- CD_list(test_threshold_min$Filename, 0.45, method = method)
+test_threshold_min$Hum05 <- CD_list(test_threshold_min$Filename, 0.5, method = method)
+test_threshold_min$Hum055 <- CD_list(test_threshold_min$Filename, 0.55, method = method)
+test_threshold_min$Hum06 <- CD_list(test_threshold_min$Filename, 0.6, method = method)
+test_threshold_min$Hum065 <- CD_list(test_threshold_min$Filename, 0.65, method = method)
+test_threshold_min$Hum07 <- CD_list(test_threshold_min$Filename, 0.7, method = method)
+test_threshold_min$Hum075 <- CD_list(test_threshold_min$Filename, 0.75, method = method)
+test_threshold_min$Hum08 <- CD_list(test_threshold_min$Filename, 0.8, method = method)
+test_threshold_min$Hum085 <- CD_list(test_threshold_min$Filename, 0.85, method = method)
+test_threshold_min$Hum09 <- CD_list(test_threshold_min$Filename, 0.9, method = method)
+test_threshold_min$Hum095 <- CD_list(test_threshold_min$Filename, 0.95, method = method)
 
 # Aggregation
 test_aggregation <- test_threshold_min %>%
