@@ -7,8 +7,10 @@ GTD_single <- function(img) {
   #' @param img file path to image, also known as `now`.
   #' @return numeric vector with number of persons.
   #' @import jpeg
-
-  JPEG_plot(jpeg::readJPEG(img), basename(img))
+  #' @import magick
+  plot(as.raster(magick::image_read(img)))
+  title(main = basename(img))
+  #JPEG_plot(jpeg::readJPEG(img), basename(img))
   res <- readline("Please enter number of persons: ")
   if(res == ""){
     cat("EMPTY equals 0 persons.")

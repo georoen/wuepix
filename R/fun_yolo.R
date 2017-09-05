@@ -138,7 +138,8 @@ yolo_install <- function(yolo.inst){
   #' @details 2. 'cd darknet'
   #' @details 3. 'make'
   #' @details during installation `Makefile` will be opened, to finetune the
-  #' installation, eg. truning on multithreading or GPU processing.
+  #' installation, eg. multithreading (OPENMP=1) or GPU processing (GPU=1), off
+  #' by default..
   #' @details after successfull installation it will place `yolo.inst` in
   #' `paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")`
   #'
@@ -151,13 +152,15 @@ yolo_install <- function(yolo.inst){
   setwd(dirname(yolo.inst))
 
   # Clone repository
-  git2r::clone("https://github.com/pjreddie/darknet", basename(yolo.inst))
+  if(!dir.exists(basename(yolo.inst)))
+    git2r::clone("https://github.com/pjreddie/darknet", basename(yolo.inst))
+  else
+    stop("This directroy already exists. Use yolo_update() instead.")
 
   # Make install
   setwd(basename(yolo.inst))
+  readline("Optional tune parameter, eg `OPENMP=1`. Then press ANY key.")
   file.edit("Makefile")
-  readline("Optional tune parameter, eg `OPENMP=1` for multithreading.
-           Then press ANY key.")
   system("make")
 
   # Get wights

@@ -40,3 +40,17 @@ hog_list <- function(img.list, winStride = 4, padding = 8,
   rtn <- as.numeric(out)
   invisible(rtn)
 }
+
+
+hog_install <- function() {
+  #' @title How to install HOG-Descriptor?
+  #' @description hog_list() depends on a functional OpenCV installation.
+  #' This is how I installed it on the LSFE workstation (Linux). OS-specific
+  #' @description OpenCV: \code{sudo apt install python-opencv}
+  #' @description Package Manager: \code{sudo apt install python-pip}
+  #' @description HOG Dependency: \code{pip install imutils}
+  #' @description CUDA GPU: \code{sudo apt-get install nvidia-cuda-dev nvidia-cuda-toolkit nvidia-nsight}
+  #' @seealso http://docs.opencv.org/trunk/df/d65/tutorial_table_of_content_introduction.html
+  #' @usage ?hog_install()
+  ?hog_install()
+}

@@ -2,6 +2,7 @@ library(tidyverse)
 library(wuepix)
 
 # Site Configuration
+# setwd("~/Programmierung/Masterarbeit/method/Schorfheide/Kloster")
 setwd("/home/jeremy/Dokumente/1_University/Master/Masterarbeit/method/Hubland_Mo_EOI2/")
 load("Results/GTD.RData")
 

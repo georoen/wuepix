@@ -24,7 +24,8 @@ test to check whether installation succeeded.
 3. 'make'
 
 during installation `Makefile` will be opened, to finetune the
-installation, eg. truning on multithreading or GPU processing.
+installation, eg. multithreading (OPENMP=1) or GPU processing (GPU=1), off
+by default..
 
 after successfull installation it will place `yolo.inst` in
 `paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")`
