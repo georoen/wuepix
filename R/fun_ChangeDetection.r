@@ -104,7 +104,7 @@ CD_single <- function(file.now, file.old, Min=0.2, Max=1, predictions=NULL,
     jpeg::writeJPEG(hum, file.path(predictions, basename(file.now)))
   }
 
-  return(hum)
+  return(sum(hum))
 }
 
 

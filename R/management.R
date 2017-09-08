@@ -108,3 +108,14 @@ ROI_hist <- function(roi) {
     scale_colour_manual(values=c("Blue", "Green", "Red")) +
     geom_density()
 }
+
+fun_Aggregation <- function(Timestamp, Variable, T_scale = "hour") {
+  #' @title Aggregate Time-series
+  #' @param T_scale Timeinterval. See ?lubridate::floor_date()
+  #' @returns Dataframe including summed and mean variable per Timeinterval
+  df <- data.frame(Timestamp, Variable)
+  df %>% mutate(Timestamp = lubridate::floor_date(Timestamp, T_scale)) %>%
+    group_by(Timestamp) %>%
+    summarise(SUM = sum(Variable, na.rm=TRUE),
+              MEAN = mean(Variable, na.rm=TRUE))
+}

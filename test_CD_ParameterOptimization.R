@@ -62,6 +62,7 @@ fun_Agg_Cal_df <- function(T_scales, test_threshold_min) {
   test_Agg_Cal <- do.call(rbind, test_Agg_Cal)
   test_Agg_Cal$Thr <- as.numeric(test_Agg_Cal$Thr)
   test_Agg_Cal$T_scale <- factor(test_Agg_Cal$T_scale, T_scales, ordered = TRUE)
+  test_Agg_Cal
 }
 test_Agg_Cal <- fun_Agg_Cal_df(T_scales, test_threshold_min)
 

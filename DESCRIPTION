@@ -12,5 +12,6 @@ LazyData: true
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown
+Imports: tidyverse, foreach, doParallel, jpeg
 VignetteBuilder: knitr
 RdMacros: Rdpack
