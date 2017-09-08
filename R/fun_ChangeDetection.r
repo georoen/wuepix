@@ -104,7 +104,7 @@ CD_single <- function(file.now, file.old, Min=0.2, Max=1, predictions=NULL,
     jpeg::writeJPEG(hum, file.path(predictions, basename(file.now)))
   }
 
-  return(as.vector(hum))
+  return(sum(as.vector(hum)))
 }
 
 
@@ -131,7 +131,7 @@ CD_list <- function(img.list, ...){
   act.Data <- foreach::foreach(now=img.list[1:new.stop],
                                old=img.list[2:old.stop],
                                .combine=c) %dopar%
-    sum(wuepix::CD_single(now, old, ...))
+    wuepix::CD_single(now, old, ...)
 
   parallel::stopCluster(cl)
 
