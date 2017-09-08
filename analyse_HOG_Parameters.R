@@ -3,21 +3,22 @@ library(tidyverse)
 # Load
 load("Results/test_HOG_1.RData")
 load("Results/test_HOG_05.RData")
-#load("hog_test64/test_HOG_2.RData")
-#load("hog_test64/test_HOG_3.RData")
-#load("hog_test64/test_HOG_4.RData")  # resize x4 same as x3. This means par_Mscale only dowscales images
+# load("hog_test64/test_HOG_2.RData")
+# load("hog_test64/test_HOG_3.RData")
+# load("hog_test64/test_HOG_4.RData")  # resize x4 same as x3. This means par_Mscale only dowscales images
 
 
 # Analyses
 test_HOG_1$resize <- 1
 test_HOG_05$resize <- -6
 test_HOG <- test_HOG_1
-#test_HOG_2$resize <- 2
-#test_HOG_3$resize <- 3
-#test_HOG_4$resize <- 4
+# test_HOG_2$resize <- 2
+# test_HOG_3$resize <- 3
+# test_HOG_4$resize <- 4
 test_HOG <- rbind(test_HOG_1, test_HOG_05)
-#test_HOG <- rbind(test_HOG_2, test_HOG_3)
+# test_HOG <- rbind(test_HOG_2, test_HOG_3)
 # test_HOG <- rbind(test_HOG_2, test_HOG_3, test_HOG_4)
+summary(test_HOG)
 ggplot(test_HOG, aes(FPPW, MR,
                      size=as.factor(par_Mscale),
                      color=as.numeric(lubridate::seconds(test_HOG$runtime)),
