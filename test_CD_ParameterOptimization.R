@@ -92,6 +92,7 @@ nrow(test_Agg_Cal)
 # Save
 test_Agg_Cal_diff <- test_Agg_Cal
 test_Agg_Cal_diff$Operator <- method
+save(test_Agg_Cal_diff, file = "test_Agg_Cal_diff.RData")
 
 
 
@@ -126,5 +127,8 @@ ggplot(test_Agg_Cal_full, aes(Thr, R2, group=T_scale, color=T_scale)) +
             show.legend = FALSE, size = 3) +
   scale_x_continuous(breaks = round(seq(0, 1, by = 0.1),1)) +
   ylim(0,1) +
-  facet_wrap(~ Operator)
-ggsave("FIG_ParameterOptimization.png", units = "cm", width = 15, height = 8)
+  facet_wrap(~ Operator) +
+  theme(legend.title = element_text(size = rel(0.7)),  # theme_msc
+        legend.text = element_text(size = rel(0.5)),
+        legend.key.size = unit(1, units = "lines"))
+ggsave("FIG_CD_ParameterOptimization.png", units = "cm", width = 15, height = 8)

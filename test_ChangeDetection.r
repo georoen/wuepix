@@ -103,4 +103,5 @@ hist(roi)
 
 
 
+k <- dim(old)[3]
 

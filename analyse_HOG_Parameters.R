@@ -36,7 +36,7 @@ ggplot(test_HOG, aes(FPPW, MR,
   scale_shape("Preprocessing") +
   scale_size_discrete("Scale Parameter", range = c(1,3)) +
   scale_color_gradient("Runtime (Secs)", low="green", high="red") +
-  theme(legend.title = element_text(size = rel(0.7)),
+  theme(legend.title = element_text(size = rel(0.7)),  # theme_msc
         legend.text = element_text(size = rel(0.5)),
         legend.key.size = unit(1, units = "lines")) +
   theme(panel.spacing = unit(15, units = "pt"))+

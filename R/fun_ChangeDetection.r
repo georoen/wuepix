@@ -36,6 +36,14 @@ CD_single <- function(file.now, file.old, Min=0.2, Max=1, predictions=NULL,
   now <- getImage(file.now, extend, plot)
   old <- getImage(file.old, extend, plot)
 
+  # Intensety Normalization. As in RADKE 2005 eq.1
+  normalizeIntensety <- function(now, old) {
+    for(k in dim(old)[3]){
+      old[k] <- sd(now[k])/sd(old[k]) * (old[k] - mean(old[k])) + mean(now[k])
+    }
+  }
+  old <- normalizeIntensety(now, old)
+
   # Define change detection methods
   method_diff_pos <- function(now, old, Min, Max) {
     # Image difference. Positiv changes only (brigther. darker parts in next iteration)
