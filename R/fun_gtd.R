@@ -54,8 +54,8 @@ GTD_truePositives <- function(GTD, PRD){
   #' @title Benchmark Pedestrian Detection
   #' @description Accuracy Assesment for Object-Based Classifiers as in DALAL
   #' etal. 2005 p. 888
-  #' @return FalseNegative, TruePositives, FalsePositive, MissRate,
-  #' FalsePositvesPerWindow
+  #' @return Returns datafram with following colums: FalseNegative,
+  #' TruePositives, FalsePositive, MissRate, FalsePositvesPerWindow, correlation
   #' @param GTD Numeric vector of Ground-Truth-Data, as returned by GTD_list()
   #' @param PRD Numeric vector of prediction values, as returned by hog_list()
   #' and yolo_list()
@@ -75,5 +75,6 @@ GTD_truePositives <- function(GTD, PRD){
               FP = sum(FP),
               MR = FN/(TP + FN),
               FPPW = FP/n())
-
+  df$cor <- cor(GTD, PRD)
+  df
 }

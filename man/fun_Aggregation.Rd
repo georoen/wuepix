@@ -9,3 +9,6 @@ fun_Aggregation(Timestamp, Variable, T_scale = "hour")
 \arguments{
 \item{T_scale}{Timeinterval. See ?lubridate::floor_date()}
 }
+\value{
+Dataframe including summed and mean variable per Timeinterval
+}

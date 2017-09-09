@@ -35,7 +35,7 @@ hog_list <- function(img.list, winStride = 4, padding = 8,
 
   if(!is.null(predictions))
     cmd <- paste(cmd, "-o", predictions)
-  out <- system(cmd, intern = TRUE, show.output.on.console = FALSE)
+  out <- system(cmd, intern = TRUE)
 
   rtn <- as.numeric(out)
   invisible(rtn)

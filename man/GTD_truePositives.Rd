@@ -13,8 +13,8 @@ GTD_truePositives(GTD, PRD)
 and yolo_list()}
 }
 \value{
-FalseNegative, TruePositives, FalsePositive, MissRate,
-FalsePositvesPerWindow
+Returns datafram with following colums: FalseNegative,
+TruePositives, FalsePositive, MissRate, FalsePositvesPerWindow, correlation
 }
 \description{
 Accuracy Assesment for Object-Based Classifiers as in DALAL

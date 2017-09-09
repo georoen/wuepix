@@ -11,10 +11,20 @@ Files <- Files %>%
 Files$Timestamp <- as.POSIXct(Files$Timestamp)
 
 
+# Resize
+dir.create("IMG_3/")
+cmd <- paste("mogrify -resize 270x240 -path IMG/",
+             paste0("IMG_3/", "*.jpg"))
+system(cmd)
+message("Finished preprocessing")
+Files$Filename <- gsub("IMG/", "IMG_3/", Files$Filename)
+
+
+
 
 # Test
-ttt <- hog_list(img.list = Files$Filename, winStride = 2, padding = 32, Mscale = 1.01)
-GTD_truePositives(Files$GTD, ttt)
+#ttt <- hog_list(img.list = Files$Filename, winStride = 2, padding = 32, Mscale = 1.01)
+#GTD_truePositives(Files$GTD, ttt)
 
 
 
@@ -62,5 +72,5 @@ test_HOG <- cbind(test_HOG, test_RTN)
 
 
 # Save
-test_HOG_1 <- test_HOG  # Scale 1
-save(test_HOG_1, file = "test_HOG_1.RData")
+test_HOG_3 <- test_HOG  # Scale 3
+save(test_HOG_3, file = "test_HOG_3.RData")

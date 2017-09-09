@@ -2,6 +2,7 @@ library(tidyverse)
 
 # Load
 load("Results/test_HOG_1.RData")
+load("Results/test_HOG_04.RData")
 load("Results/test_HOG_05.RData")
 # load("hog_test64/test_HOG_2.RData")
 # load("hog_test64/test_HOG_3.RData")
@@ -10,12 +11,14 @@ load("Results/test_HOG_05.RData")
 
 # Analyses
 test_HOG_1$resize <- 1
-test_HOG_05$resize <- -6
-test_HOG <- test_HOG_1
+test_HOG_04$resize <- 0.25
+test_HOG_05$resize <- 0.16
+
+# test_HOG <- test_HOG_1
 # test_HOG_2$resize <- 2
 # test_HOG_3$resize <- 3
 # test_HOG_4$resize <- 4
-test_HOG <- rbind(test_HOG_1, test_HOG_05)
+test_HOG <- rbind(test_HOG_1, test_HOG_04, test_HOG_05)
 # test_HOG <- rbind(test_HOG_2, test_HOG_3)
 # test_HOG <- rbind(test_HOG_2, test_HOG_3, test_HOG_4)
 summary(test_HOG)
@@ -35,7 +38,7 @@ ggplot(test_HOG, aes(FPPW, MR,
   scale_color_gradient("Runtime (Secs)", low="green", high="red") +
   theme(legend.title = element_text(size = rel(0.7)),
         legend.text = element_text(size = rel(0.5)),
-        legend.key.size = unit(1, units = "lines"))+
+        legend.key.size = unit(1, units = "lines")) +
   theme(panel.spacing = unit(15, units = "pt"))+
   theme(legend.position="bottom",
         legend.box="horizontal") +
@@ -51,3 +54,6 @@ lm(FPPW ~ resize + par_winStride + par_padding + par_Mscale, data = test_HOG) %>
   summary()
 lm(as.numeric(runtime) ~ resize + par_winStride + par_padding + par_Mscale, data = test_HOG) %>%
   summary()
+
+# "Best" Performer
+test_HOG$Ratio <- test_HOG$MR / test_HOG$FPPW

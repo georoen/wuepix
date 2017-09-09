@@ -47,7 +47,7 @@ yolo_single <- function(img, logfile="yolo_detections.txt",
   # Classification
   yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_single.sh")
   cmd <- paste(yolo.bin, yolo.inst, img, predictions)
-  out <- system(cmd, intern = TRUE, show.output.on.console = FALSE)
+  out <- system(cmd, intern = TRUE)
 
   # Process output
   ## drop runtime
@@ -92,7 +92,7 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   # Classification
   yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_list.sh")
   cmd <- paste(yolo.bin, yolo.inst, img.file)
-  out <- system(cmd, intern = TRUE, show.output.on.console = FALSE)
+  out <- system(cmd, intern = TRUE)
 
   # Process logfile
   ## Drop last row (empty)

@@ -112,7 +112,7 @@ ROI_hist <- function(roi) {
 fun_Aggregation <- function(Timestamp, Variable, T_scale = "hour") {
   #' @title Aggregate Time-series
   #' @param T_scale Timeinterval. See ?lubridate::floor_date()
-  #' @returns Dataframe including summed and mean variable per Timeinterval
+  #' @return Dataframe including summed and mean variable per Timeinterval
   df <- data.frame(Timestamp, Variable)
   df %>% mutate(Timestamp = lubridate::floor_date(Timestamp, T_scale)) %>%
     group_by(Timestamp) %>%
