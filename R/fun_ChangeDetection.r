@@ -41,6 +41,7 @@ CD_single <- function(file.now, file.old, Min=0.2, Max=1, predictions=NULL,
     for(k in dim(old)[3]){
       old[k] <- sd(now[k])/sd(old[k]) * (old[k] - mean(old[k])) + mean(now[k])
     }
+    old
   }
   old <- normalizeIntensety(now, old)
 
