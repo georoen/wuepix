@@ -11,10 +11,12 @@ Files <- Files %>%
 Files$Timestamp <- as.POSIXct(Files$Timestamp)
 
 
+
+
 # Resize
 dir.create("IMG_3/")
-cmd <- paste("mogrify -resize 270x240 -path IMG/",
-             paste0("IMG_3/", "*.jpg"))
+cmd <- paste("mogrify -resize 270x240 -path IMG_3/",
+             paste0("IMG/", "*.jpg"))
 system(cmd)
 message("Finished preprocessing")
 Files$Filename <- gsub("IMG/", "IMG_3/", Files$Filename)
@@ -31,8 +33,8 @@ Files$Filename <- gsub("IMG/", "IMG_3/", Files$Filename)
 # Parameters
 #Files$Filename <- gsub("IMG/", "IMG_resize/", Files$Filename)  # Skip resizing!
 winStride <- c(2, 4, 8)
-padding <- c(16, 24, 32, 64)
-Mscale <- c(1, 1.001, 1.01, 1.02, 1.05, 1.1)
+padding <- c(16, 24, 32)
+Mscale <- c(1, 1.025, 1.05, 1.1)
 test_HOG <- expand.grid(par_winStride = winStride, par_padding = padding, par_Mscale = Mscale)
 
 # Wrap Processing

@@ -64,7 +64,7 @@ GTD_truePositives <- function(GTD, PRD){
 
   df <- data.frame(GTD = GTD, PRD = PRD)
 
-  df %>%
+  df <- df %>%
     mutate(FP = PRD - GTD,
            FP = ifelse(FP >=0, FP, 0),  # positive values only
            TP = PRD - FP,

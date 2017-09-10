@@ -11,8 +11,15 @@ Files <- Files %>%
 
 
 
+
+# Scaled images
+img.list <- gsub("IMG/", "IMG_3/", Files$Filename)
+
+
+
+
 # Test
-img.list <- Files[,"Filename"]
+# img.list <- Files[,"Filename"]
 start <- Sys.time()
 YOLO <- yolo_list(img.list)
 if(length(YOLO) < nrow(Files))
