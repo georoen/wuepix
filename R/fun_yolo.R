@@ -241,3 +241,40 @@ yolo_update <- function(yolo.inst){
   message("Working directory has been resettet")
   invisible(0)
 }
+
+
+
+yolo_Read <- function(file = "yolo_detections.txt") {
+  #' @title Read YOLO Output File
+  #' @description Read and clean YOLO output file, as saved to working directory
+  #' by yolo_list()
+  #' @param file path to output "yolo_detections.txt" file.
+  yolo <- read_file(file)
+  yolo <- as.list(strsplit(yolo, " \n")[[1]])
+
+  # Read a single line
+  yolo_Interpret_single <- function(yolo.i) {
+    # split after filename
+    yolo.i <- stringi::stri_split_fixed(str = yolo.i, pattern = " ", n = 2)[[1]]
+    obj.class <- strsplit(yolo.i[2], "% ")[[1]]
+    if(TRUE %in% is.na(obj.class))
+      return(NULL)
+    obj.class <- strsplit(obj.class, ": ")
+    obj.class <- as.data.frame(t(simplify2array(obj.class)))
+    names(obj.class) <- c("Class", "Certainty")
+    obj.class$Filename <- yolo.i[1]
+    obj.class
+  }
+  # lapply
+  yolo.results <- lapply(yolo, yolo_Interpret_single)
+  yolo.results <- Filter(Negate(is.null), yolo.results)
+  yolo.results <- do.call(rbind, yolo.results)
+  # drop class levels
+  yolo.results$Class <- as.character(yolo.results$Class)
+  # clean Certainty
+  yolo.results$Certainty <- gsub("%", "", yolo.results$Certainty)
+  yolo.results$Certainty <- as.numeric(yolo.results$Certainty)/100
+  # return in usual order
+  yolo.results <- yolo.results[c("Filename", "Class", "Certainty")]
+  return(yolo.results)
+}
