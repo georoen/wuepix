@@ -34,7 +34,7 @@ Files$Filename <- gsub("IMG/", "IMG_3/", Files$Filename)
 #Files$Filename <- gsub("IMG/", "IMG_resize/", Files$Filename)  # Skip resizing!
 winStride <- c(2, 4, 8)
 padding <- c(16, 24, 32)
-Mscale <- c(1, 1.025, 1.05, 1.1)
+Mscale <- c(1, 1.02, 1.05, 1.1)
 test_HOG <- expand.grid(par_winStride = winStride, par_padding = padding, par_Mscale = Mscale)
 
 # Wrap Processing

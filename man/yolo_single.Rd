@@ -5,7 +5,7 @@
 \title{Object Detection using YOLO}
 \usage{
 yolo_single(img, logfile = "yolo_detections.txt",
-  predictions = "yolo_predictions/")
+  predictions = "YOLO_Predictions/")
 }
 \arguments{
 \item{img}{file path to image, also known as `now`.}

@@ -1,0 +1,9 @@
+IMG
+CD_Predictions
+YOLO_Predictions
+HOG_Predictions
+my-vignette_cache
+my-vignette_files
+Results
+Counter.csv
+yolo_detections.txt

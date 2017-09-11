@@ -3,7 +3,7 @@
 #' \insertRef{redmon2016yolo9000}{wuepix}
 #' \url{https://pjreddie.com/darknet/yolo/}
 yolo_single <- function(img, logfile="yolo_detections.txt",
-                        predictions="yolo_predictions/") {
+                        predictions="YOLO_Predictions/") {
   #' @title Object Detection using YOLO
   #' @description detect people using YOLO+CNN (Linux C++), in a single image.
   #'

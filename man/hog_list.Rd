@@ -17,7 +17,7 @@ window increase.}
 \item{resize}{Numeric factor resizing image in integrated pre-processing
 step. E.g. 2 will double the image extent. People should be 100 pixels high.}
 
-\item{predictions}{}
+\item{predictions}{dir path to where to store prediction images. Must end with "/".}
 
 \item{img.folder}{Path to (preprocessed) image archive}
 }

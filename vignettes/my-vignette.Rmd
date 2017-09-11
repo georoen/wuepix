@@ -1,0 +1,291 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: inline
+---
+```{r cache, include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+
+# Packages
+The *wuepix* package counts visitor numbers using computer vision. Therefore three approaches were wrapped here. Addiotional management tools, as a Ground-Thruth-Data sampler, are also packed here.
+
+```{r message=FALSE, warning=FALSE}
+library(wuepix)
+library(tidyverse)
+```
+
+
+
+# Site configuration
+## Paths & Filenames
+Here the workflow has to be configured for each site. This means defining the directory paths and filename patterns implying tha data code.
+```{r}
+# Where to find Images?
+## Raw data
+img.folder_raw <- "IMG_raw/"
+# Preprocessed (croped, scaled, enhanced,...)
+img.folder  <- "IMG/"
+# Remove corrupted images by filesize (in byte)
+threshold <- 10000
+# How to grep date?
+gsub.Date <- function(Filename){gsub("picam-", "", gsub(".jpg", "", Filename))}
+# Date code
+date.code <- "%Y%m%d-%H%M"
+
+
+
+# Hubland
+# threshold <- 1000
+# gsub.Date <- function(Filename){gsub("Camera1_M_", "", gsub(".jpg", "", Filename))}
+# date.code <- "%Y-%m-%d-%H%M%S"
+```
+
+
+
+## Extent of interest
+To speed up processing an extend of interest (EOI) should be selected. Using the linux comandline tool *ImageMagick*, this can also include rotations aswell as other image operations. However identifying the correct comand involves visual interpreation of the results. To do so I proceeded as follows.  
+
+### 1. Using Gimp / Photoshop
+Initially use *GIMP* to identify the preprocess routine (boundingbox, optional  rotation).
+
+> Tipp: Overlay several images to cover different scenarios.
+
+ <!-- ![EOI with Gimp](extra/EOI_GIMP.jpg) -->
+
+### 2. Test comandline
+After identifying the preprocess routine try to put the parameters into *ImageMagick* and test comand on a single image using `convert`.
+```{r, eval=FALSE, include=FALSE}
+# Test
+# SizeX x SizeY + PostionX + PositionY
+convert.string <- "-crop 1600x800+0+1030"
+cmd <- paste("convert extra/Ref_raw.jpg", convert.string, "extra/Ref.jpg")
+system(cmd)
+message("Please check cropped Ref.jpg, then proceed")
+```
+
+This results in the following extend of interest. Only this part of the image will be further analysed, so please only proceed if satisfied with the result.
+
+![Operational EOI](extra/Ref.jpg)
+
+### 3. Preprocess image archive
+Next all images will be preprocessed according to the routine developed above using `mogrify`. Please pay attention to the slightly different syntax of the following command `mogrify -crop 2850x1000+0+980 -path IMG/ IMG_raw/*.jpg`. This will preprocess all images from `IMG_raw/` and save them in `IMG/`. (Less than 5 minutes for 506 images).
+
+```{r, eval=FALSE, include=FALSE}
+# Preprocess
+dir.create(img.folder)
+cmd <- paste("mogrify", convert.string, "-path", img.folder, 
+             paste0(img.folder_raw, "*.jpg"))
+system(cmd)
+message("Finished preprocessing")
+```
+
+## List images
+First all images will be listed. The following chunk does so, plus enhances the data frame according to *Site configuration*: (1) due to external effects (eg. transmission) images can be corrupted. Here files with a file size smaller than the `threshold` will be exluded. (2) The Timestamp gets interpreted, therefore first the filenames are cropped with help of `gsub.Date`. Because filenames can be very different and the corresponding regular expression can very complex, it seemed easiest to do with a function. This also makes developing it more simple due better testing option. After cropping the timestamp it will be converted to a *POSIXlt* time object using `date.code`. (3) Last but not least the relative filepaths are reconstructed. Note, that this should also work with `list.files(..., fullnames=TRUE)` but I remeber then struggeling with grepping the datecode.
+
+```{r List images}
+Files <- data.frame(Filename=list.files(img.folder, pattern = "*.jpg"),
+                    stringsAsFactors = FALSE)
+
+# Remove corrupted images
+Files$Size <- file.size(paste0(img.folder, Files$Filename)) > threshold
+Files <- Files[which(Files$Size),]
+Files <- select(Files, -Size)
+
+# Add Timestamp
+Files$Timestamp <- strptime(gsub.Date(Files$Filename), date.code)
+Files$Timestamp <- as.POSIXct(Files$Timestamp)
+Files <- Files[order(Files$Timestamp),]  # Order by Timestamp
+
+# Full Filename
+Files$Filename <- paste0(img.folder, Files$Filename)
+```
+To get an overview about the data beeing processed, here some metadata summarys are promted.
+```{r input summary, echo=FALSE}
+cat(paste(nrow(Files), "files to analize"))
+cat(paste("Dates from", format(range(Files$Timestamp)[1], "%d.%m.%Y %H:%M"),
+          "to",  format(range(Files$Timestamp)[2], "%d.%m.%Y %H:%M")))
+diff(range(Files$Timestamp))
+```
+
+
+
+## Ground-Truth-Data
+Manually count pedestrians. This Ground-Truth-Data (GTD) will be utilized to access accuracies. Here all images (100%) got evaled.
+```{r Sample GTD data, eval=FALSE}
+start <- Sys.time()  # Get start time
+#GTD <- GTD_list(sample(x = Files$Filename, size = 10))
+#the.sample <- sample(c(1:nrow(Files)), size = 100)
+#Files <- Files[the.sample,]
+Files$GTD <- GTD_list(Files$Filename)
+Files$GTD <- as.numeric(Files$GTD)
+(Sys.time() - start)  # Print runtime
+
+save(Files, file = "Results/GTD.RData")
+write.csv(Files, file = "Results/GTD.csv")
+```
+```{r}
+load("Results/GTD.RData")
+
+print(paste("Visitor number:", sum(Files$GTD)))
+hist(Files$GTD)
+ggplot(Files, aes(Timestamp, GTD)) +
+  geom_line()
+
+# Aggregation
+Files_res <- fun_Aggregation(Files$Timestamp, Files$GTD) %>% 
+  select(-MEAN) %>% 
+  rename(GTD = SUM)
+```
+
+# Processing
+Now the (preprocessed) image archive get processed.
+
+## Method 1: Change detection
+This approach is inspired by methods used remote sensing and biotech. Using simple maths two pictures are applied against each other, highlighting the differences.
+
+The function implemented in `wuepix`includes parallel processing.
+
+```{r}
+# Processing
+start <- Sys.time()  # Get start time
+Files$Hum <- CD_list(Files$Filename, Min = 0.75, method = "ratio",
+                     predictions = "CD_Predictions")
+(Sys.time() - start)  # Print runtime
+```
+```{r}
+# Aggregation
+Files_res <- fun_Aggregation(Files$Timestamp, Files$Hum) %>% 
+  select(-SUM) %>% 
+  rename(CD = MEAN) %>% 
+  left_join(Files_res)
+
+# Calibration
+lm_cal <- lm(GTD ~ 0+CD, data = Files_res)
+summary(lm_cal)
+Files_res$CD_pred <- predict(lm_cal, select(Files_res, -GTD))
+```
+
+
+## Method 2: HOG
+```{r}
+# Resize
+dir.create("IMG_resize/")
+cmd <- paste("mogrify -resize 200x400 -path IMG_resize/",
+             paste0("IMG/", "*.jpg"))
+system(cmd)
+message("Finished preprocessing")
+Files_resized <- gsub("IMG/", "IMG_resize/", Files$Filename)
+```
+
+```{r}
+# Processing
+start <- Sys.time()  # Get start time
+Files$HOG <- hog_list(Files_resized, resize = 1, padding = 16, winStride = 4,
+                      Mscale = 1, predictions = "HOG_Predictions/")
+(Sys.time() - start)  # Print runtime
+
+GTD_truePositives(Files$GTD, Files$HOG)
+```
+```{r}
+# Aggregation
+Files_res <- fun_Aggregation(Files$Timestamp, Files$HOG) %>% 
+  select(-MEAN) %>% 
+  rename(HOG = SUM) %>% 
+  left_join(Files_res)
+```
+
+
+## Method 3: YOLO
+Saving the predicitons unfortuonatly is only availabe in `yolo_single()`.
+```{r}
+# Processing
+start <- Sys.time()  # Get start time
+Files$YOLO <- yolo_list(Files$Filename)
+# Files$YOLO <- sapply(Files$Filename, yolo_single, predictions = "YOLO_Predictions")
+(Sys.time() - start)  # Print runtime
+
+GTD_truePositives(Files$GTD, Files$YOLO)
+```
+
+```{r}
+# Aggregation
+Files_res <- fun_Aggregation(Files$Timestamp, Files$YOLO) %>% 
+  select(-MEAN) %>% 
+  rename(YOLO = SUM) %>% 
+  left_join(Files_res)
+```
+
+As YOLO detects a lot of objects, `yolo_list()` logs a complete list of all detections to a seperate file `yolo_detections.txt`.
+```{r}
+# Read, group and count detections
+yolo.results <- yolo_Read("yolo_detections.txt") %>% 
+  group_by(Class) %>% 
+  count() %>% 
+  arrange(desc(n)) %>% 
+  ungroup() %>% 
+  mutate(Class = factor(Class, unique(Class)))
+ggplot(yolo.results, aes(Class, n)) +
+  geom_col() +
+  scale_x_discrete(limits = rev(levels(yolo.results$Class))) +
+  labs(title = "Histogram of Detected Objects",
+       y = "Frequency", x = "Object Class") +  # coords flipped!
+  coord_flip() 
+  ggsave("FIG_YOLO_Histogram.png", units = "cm", width = 15, height = 6)
+```
+
+
+# Results
+For further researches, save the enviroment.
+```{r}
+save.image(file = "Results/Enviroment.RData")
+```
+
+```{r}
+# FIG_V-Timeseries
+Files_res %>%
+  select(-CD) %>% 
+  rename(CD = CD_pred) %>% 
+  gather("Method", "Value", 2:5) %>% 
+  mutate(Day = lubridate::wday(Timestamp, label = TRUE, abbr = FALSE),
+         Method = factor(Method, unique(Method)),  # make msc order
+         Method = factor(Method, levels = c("GTD", "CD", "HOG", "YOLO"))) %>%
+  ggplot(aes(Timestamp, Value, color=Method)) +
+  geom_line(size = 1) +
+  facet_grid(. ~ Day, scales="free") +
+  theme(legend.title = element_text(size = rel(0.7)),  # theme_msc
+        legend.text = element_text(size = rel(0.5)),
+        legend.key.size = unit(1, units = "lines")) +
+  theme(panel.spacing = unit(15, units = "pt"))+
+  theme(legend.position="bottom",
+        legend.box="horizontal") +
+  guides(color = guide_legend(title.position="top", title.hjust = 0.5)) +
+  labs(title = "Visitor Numbers",
+       y = expression(paste("Number of Detected Visitors (", V[T], ")")))
+ggsave("FIG_V-Timeseries.png", units = "cm", width = 15, height = 8)
+```
+
+Median derivation
+```{r}
+Files_res %>%
+  select(-CD) %>% 
+  gather("Method", "Value", 2:5, -"GTD") %>% 
+  mutate(Value = Value + 0.0001,
+         GTD = GTD + 0.0001) %>% 
+  group_by(Timestamp, Method) %>% 
+  summarise(GTD = sum(GTD),
+            Value = sum(Value)) %>% 
+  mutate(DER = round(Value/GTD, 3)) %>% 
+  group_by(Method) %>%
+  summarise(Median =  median(DER, na.rm = TRUE),
+            SD = sd(DER, na.rm = TRUE))
+```
+
