@@ -21,7 +21,7 @@ hog_list <- function(img.list, winStride = 4, padding = 8,
   #' @return Numeric vector with number of detected persons.
 
   # Check predictions folder
-  if(!dir.exists(predictions))
+  if(!is.null(predictions) && !dir.exists(predictions))
     dir.create(predictions)
 
   # Path to python script
