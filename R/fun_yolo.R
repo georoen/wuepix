@@ -41,7 +41,7 @@ yolo_single <- function(img, logfile="yolo_detections.txt",
          Also run `yolo_update(yolo.inst)` after updating this package!")
 
   # Check predictions folder
-  if(!dir.exists(predictions))
+  if(!is.null(predictions) && !dir.exists(predictions))
     dir.create(predictions)
 
   # Classification
@@ -112,7 +112,10 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   ## Add Linebreak
   rtn[cues[-1]] <- paste0("\n", rtn[cues[-1]])
   ## write classification results to logfile
-  cat(rtn, file = logfile, fill = FALSE, append = TRUE)
+  fileConn<-file(logfile)
+  writeLines(rtn, fileConn)
+  close(fileConn)
+  #cat(rtn, file = logfile, fill = FALSE, append = TRUE)
 
   # Process return
   ## Group output by image
@@ -249,6 +252,8 @@ yolo_Read <- function(file = "yolo_detections.txt") {
   #' @description Read and clean YOLO output file, as saved to working directory
   #' by yolo_list()
   #' @param file path to output "yolo_detections.txt" file.
+  #' @importFrom stringi stri_split_fixed
+  #' @importFrom purrr is_empty
   yolo <- read_file(file)
   yolo <- as.list(strsplit(yolo, " \n")[[1]])
 
@@ -257,7 +262,7 @@ yolo_Read <- function(file = "yolo_detections.txt") {
     # split after filename
     yolo.i <- stringi::stri_split_fixed(str = yolo.i, pattern = " ", n = 2)[[1]]
     obj.class <- strsplit(yolo.i[2], "% ")[[1]]
-    if(TRUE %in% is.na(obj.class))
+    if(TRUE %in% purrr::is_empty(obj.class))
       return(NULL)
     obj.class <- strsplit(obj.class, ": ")
     obj.class <- as.data.frame(t(simplify2array(obj.class)))
