@@ -252,16 +252,17 @@ yolo_Read <- function(file = "yolo_detections.txt") {
   #' @description Read and clean YOLO output file, as saved to working directory
   #' by yolo_list()
   #' @param file path to output "yolo_detections.txt" file.
-  #' @importFrom stringi stri_split_fixed
   #' @importFrom purrr is_empty
   yolo <- read_file(file)
-  yolo <- as.list(strsplit(yolo, " \n")[[1]])
+  yolo <- as.list(strsplit(yolo, "\n\n")[[1]])
 
   # Read a single line
   yolo_Interpret_single <- function(yolo.i) {
     # split after filename
-    yolo.i <- stringi::stri_split_fixed(str = yolo.i, pattern = " ", n = 2)[[1]]
-    obj.class <- strsplit(yolo.i[2], "% ")[[1]]
+    yolo.i <- strsplit(unlist(yolo.i), "\n")[[1]]
+    if(length(yolo.i) < 2)
+      return(NULL)
+    obj.class <- yolo.i[-1]
     if(TRUE %in% purrr::is_empty(obj.class))
       return(NULL)
     obj.class <- strsplit(obj.class, ": ")
