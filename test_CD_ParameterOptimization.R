@@ -130,5 +130,6 @@ ggplot(test_Agg_Cal_full, aes(Thr, R2, group=T_scale, color=T_scale)) +
   facet_wrap(~ Operator) +
   theme(legend.title = element_text(size = rel(0.7)),  # theme_msc
         legend.text = element_text(size = rel(0.5)),
-        legend.key.size = unit(1, units = "lines"))
-ggsave("FIG_CD_ParameterOptimization.png", units = "cm", width = 15, height = 8)
+        legend.key.size = unit(1, units = "lines")) +
+  theme(legend.justification = c("right", "bottom"))
+ggsave("FIG_CD_ParameterOptimization.png", units = "cm", width = 13.5, height = 8)
