@@ -1,9 +1,9 @@
 # Hubland Full
 # File selector
-setwd("../Hubland/")
+#setwd("../Hubland/")
 #img.folder.raw <- "2017/05/"
-img.folder <- "2017/04/"
-img.folder.post <- "2017/04_crop/"
+img.folder <- "2017/08/"
+img.folder.post <- "2017/08_crop/"
 
 library(tidyverse)
 library(lubridate)
@@ -40,7 +40,7 @@ start <- Sys.time()  # Get start time
 tmp.dir <- paste0(tempdir(),"/")
 dir.create(tmp.dir)
 cmd <- paste("mogrify", convert.string, "-path", tmp.dir,
-             paste0(img.folder, "*.jpg"))
+             paste0("\"",img.folder, "*.jpg", "\""))
 system(cmd)
 message("Finished preprocessing")
 (Sys.time() - start)  # Print runtime

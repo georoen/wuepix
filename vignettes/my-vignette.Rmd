@@ -76,7 +76,7 @@ message("Please check cropped Ref.jpg, then proceed")
 
 This results in the following extend of interest. Only this part of the image will be further analysed, so please only proceed if satisfied with the result.
 
-![Operational EOI](extra/Ref.jpg)
+<!-- ![Operational EOI](extra/Ref.jpg) -->
 
 ### 3. Preprocess image archive
 Next all images will be pre-processed according to the routine developed above using `mogrify`. Please pay attention to the slightly different syntax of the `mogrify -crop ... -path IMG/ IMG_raw/*.jpg`. This will preprocess all images from `IMG_raw/` and save them in `IMG/`.
@@ -85,7 +85,7 @@ Next all images will be pre-processed according to the routine developed above u
 # Preprocess
 dir.create(img.folder)
 cmd <- paste("mogrify", convert.string, "-path", img.folder, 
-             paste0(img.folder_raw, "*.jpg"))
+             paste0("\"",img.folder_raw, "*.jpg", "\""))
 system(cmd)
 message("Finished preprocessing")
 ```
@@ -159,7 +159,7 @@ Files_res <- fun_Aggregation(Files$Timestamp, Files$GTD, T_scale) %>%
 Finally we can start processing the (preprocessed) image archive. For a detailed description of the methods, the reader is refered to the authors master thesis.
 
 ## Method 1: Change detection
-This approach is inspired by methods used remote sensing and biotech. Using simple maths two pictures are applied against each other, highlighting the differences. Use `CD_list()` for processing a list of images, including parallel processing. See `?CD_single()` for the available parameters.
+This approach is inspired by methods used remote sensing and biotech. Using algebra, two pictures are applied against each other, revealing changes. Use `CD_list()` for processing a list of images, including parallel processing. See `?CD_single()` for the available parameters.
 
 ```{r}
 # Processing
@@ -220,7 +220,7 @@ Files_res <- fun_Aggregation(Files$Timestamp, Files$HOG, T_scale) %>%
 
 
 ## Method 3: Convolutional-Neural-Network
-The third and last object detector discussed in this study bases on Convolutional-Neural-Networks. Here [*YOLO*](https://pjreddie.com/darknet/yolo/) was utilized, as it comes pre-trained and has a open license. To install it use `yolo_install()`. Accordingly it was wrapped into `yolo_list()` and `yolo_single()`, whereby unfortunately only the latter is capable of saving the predictions. Using `sapply()` is possible, however note, that processing does take much longer, as the weights need to get loaded repeatedly. Attention, after every *wuepix* installation it is necessary to run `yolo_update()` as well, as this write a small file into the package installation linking to the *YOLO* installation. This links aids running the wrapper functions conveniently.
+The third and last object detector discussed in this study bases on Convolutional-Neural-Networks. Here [*YOLO*](https://pjreddie.com/darknet/yolo/) [REDMON_2016] was utilized, as it comes pre-trained and has a open license. To install it use `yolo_install()`. Accordingly it was wrapped into `yolo_list()` and `yolo_single()`, whereby unfortunately only the latter is capable of saving the predictions. Using `sapply()` is possible, however note, that processing does take much longer, as the weights need to get loaded repeatedly. Attention, after every *wuepix* installation it is necessary to run `yolo_update()` as well, as this write a small file into the package installation linking to the *YOLO* installation. This links aids running the wrapper functions conveniently.
 ```{r}
 # Processing
 start <- Sys.time()  # Get start time

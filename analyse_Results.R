@@ -112,7 +112,9 @@ yolo_View("car", predicitions = predicitions)
 yolo_View("dog", predicitions = predicitions)
 yolo_View("truck", predicitions = predicitions)
 yolo_View("motorbike", predicitions = predicitions)
+yolo_View("handbag", predicitions = predicitions)
 
+yolo_View("umbrella", predicitions = predicitions)
 
 
 
