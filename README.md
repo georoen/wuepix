@@ -10,7 +10,7 @@ Utilizing cameras to count visitors has proven to be accurate, traceable and ric
 ## Methods
 In this R package three methods are presented to extract visitor numbers from imagery. It may be important to stress, that only the first method is coded from scratch - the other two methods depend on existing software. Wuepix however ensures an easy and standarized interface. (1) *Change detection* is ment for sequential images and substracs two images. This method, also used in remote sensing (Singh, 1989) and others studies as biology, is also known as background substraction. It is comprehensible and very fast, but sensetiv to all kind of pixel changes. (2) *Histogramms of Oriented Gradients* were introduced by (Dalal & Triggs, 2005) to detect pedestrians. Here the HOG-Descriptor implementation of the Python [OpenCV](https://opencv.org/) library is utelized. It fast, but sensetiv for all kind of rectangular objects. Consequently it is not recommended for imagery with background trees. (3) Last but not least, a *Convolutional-Neural-Network* is wrapped into the package. [YOLO](https://pjreddie.com/darknet/yolo/), partly developed in cooperation with the *Facebook AI Research* department by (Redmon et al., 2016), is a versatile object detector. It comes pretrained with hundreds of categories. Among these categories are for example backpacks, bicycles and dogs, which help to characterize visitors segments. While it thus provides detailed visitor characteristics, this method processes comparably slow.
 
-> The methods can be applied to an individual image each, or on a list of filenames / folder. In the latter case please use `CD_list()`, `hog_list()` or `yolo_list()` respectively. The functions then will return a numeric vector of detected persons. For YOLO, a complete list of all detected objects is written to `logfile` and is parsed into a dataframe by `yolo_Read()`.
+The methods can be applied to an individual image each, or on a list of filenames / folder. In the latter case please use `CD_list()`, `hog_list()` or `yolo_list()` respectively. The functions then will return a numeric vector of detected persons. For YOLO, a complete list of all detected objects is written to `logfile` and is parsed into a dataframe by `yolo_Read()`.
 
 Additionally, some helper functions are available. For assessing the methods accuracy it's obligatory to evaluate an image archive manually. To generate ground-truth data use `GTD_list()`. Further it was intended to ease the installation of the depending software. Consequently `hog_install` and `yolo_install` will try to lead you through the installation process. You only need to install them, if you plan to  use them (e.g. it is possible to leave out the OpenCV-library). It may be important to stress, wuepix was developed on Linux machines, but should work on MacOS or on Windows within a Virtual Box.
 
@@ -31,6 +31,7 @@ Along with methodological aspects, it may be interesting to add ecological monit
 
 
 ## References
+<small>
 Arnberger, A., Haider, W., Brandenburg, C., 2005. Evaluating Visitor-Monitoring Techniques: A Comparison of Counting and Video Observation Data. Environmental Management 36, 317–327.  
 Cessford, G., Muhar, A., 2003. Monitoring options for visitor numbers in national parks and natural areas. Journal for nature conservation 11, 240–250.  
 Dalal, N., Triggs, B., 2005. Histograms of oriented gradients for human detection, in: 2005 IEEE Computer Society Conference on Computer Vision and Pattern Recognition. IEEE, pp. 886–893.  
@@ -41,7 +42,7 @@ Miller, A.B., Leung, Y.-F., Kays, R., 2017. Coupling visitor and wildlife monito
 Redmon, J., Divvala, S., Girshick, R., Farhadi, A., 2016. You only look once: Unified, real-time object detection, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. pp. 779–788.  
 Singh, A., 1989. Review Article Digital change detection techniques using remotely-sensed data. International Journal of Remote Sensing 10, 989–1003.  
 Staab, J., 2017. Applying Computer Vision for Monitoring Visitor Numbers - A Geographical Approach. Institute of Geography, Julius-Maximilians-Universität Würzburg, Germany, Master’s thesis. ([ResearchGate](https://www.researchgate.net/publication/320948063_Applying_Computer_Vision_for_Monitoring_Visitor_Numbers_-_A_Geographical_Approach))  
-
+<\small>
 
 
 
