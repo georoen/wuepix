@@ -1,12 +1,11 @@
 Package: wuepix
 Type: Package
 Title: Using Computer Vision to Count Pedestrians
-Version: 0.1.0
+Version: 0.0.2
 Author: Jeroen Staab
 Maintainer: Jeroen Staab <jstaab@posteo.de>
-Description: Wuepix detects people in image archives and is ment to aid geographers counting visitors of touristic destinations as natural reservers.
-    This package is part of the authors master thesis.
-License: What license is it under?
+Description: R-Package for using computer vision to count pedestrians in webcam imagery. Wuepix is ment to aid geographers counting visitors of touristic destinations as natural reservers protected areas. The package is part of the authors master thesis. 
+License: CC BY-SA 4.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
