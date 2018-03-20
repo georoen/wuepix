@@ -1,5 +1,5 @@
 # WUEPIX <img src="man/hexlogo.png" align="right" width="120"/>
-Latest applied human geography combines people with data. The research questions however may be wide apart: How many people visit national parks? Or when is traffic worst within a city? As broad as geography is, as scarce may the available data be. Consequently it has to be acquired first. Herewith a new measuring instrument, using computer vision adn webcam imagery, is presented to this domain.
+Latest applied human geography combines people with data. The research questions however may be wide apart: How many people visit national parks? Or how do traffic intensities develop over a typical day within a particular city? As broad as geography is, as scarce may the available data be. Consequently it has to be acquired first. Herewith a new measuring instrument, using computer vision and webcam imagery, is presented to this domain.
 
 
 
