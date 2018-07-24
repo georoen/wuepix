@@ -162,15 +162,23 @@ yolo_install <- function(yolo.inst){
 
   # Make install
   setwd(basename(yolo.inst))
-  readline("Optional tune parameter, eg `OPENMP=1`. Then press ANY key.")
-  file.edit("Makefile")
+  openmp <- readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`")
+  if(openmp == "Yes"){
+    cat(gsub("OPENMP=0", "OPENMP=1", readLines("Makefile")), file="Makefile", sep="\n")
+  } else {
+    message("Did not understand your answer (Typo?). Proceeding without multithreading!")
+  }
   system("make")
 
   # Get wights
-  download.file("https://pjreddie.com/media/files/yolo.weights", "yolo.weights")
+  download.file("https://pjreddie.com/media/files/yolov3.weights", "yolov3.weights")
+
+  # Saving yolo.inst
+  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
+  cat(tools::file_path_as_absolute(yolo.inst), file = yolo.bin)
 
   # Test
-  rtn <- try(system("./darknet detect cfg/yolo.cfg yolo.weights data/dog.jpg",
+  rtn <- try(system("./darknet detect cfg/yolov3.cfg yolov3.weights data/dog.jpg",
                 intern = TRUE))
   if(length(rtn) == 0)
     stop("Automatic installation failed!\n
@@ -178,10 +186,6 @@ yolo_install <- function(yolo.inst){
           https://pjreddie.com/darknet/yolo/")
   else
     message("Installation sucessful!")
-
-  # Saving yolo.inst
-  yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
-  cat(tools::file_path_as_absolute(yolo.inst), file = yolo.bin)
 
   # Reset working directory and return
   setwd(wd)
@@ -219,18 +223,22 @@ yolo_update <- function(yolo.inst){
   if(length(rtn) == 1){  # "Bereits aktuell."
     # Reset working directory and return
     setwd(wd)
-    message("Working directory has been resettet")
+    message("Working directory has been resetted")
     return()
   }
 
   # Make install
-  file.edit("Makefile")
-  readline("Optional tune parameter, eg `OPENMP=1` for multithreading.
-           Then press ANY key.")
+  setwd(basename(yolo.inst))
+  openmp <- readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`")
+  if(openmp == "Yes"){
+    cat(gsub("OPENMP=0", "OPENMP=1", readLines("Makefile")), file="Makefile", sep="\n")
+  } else {
+    message("Did not understand your answer (Typo?). Proceeding without multithreading!")
+  }
   system("make")
 
   # Test
-  rtn <- try(system("./darknet detect cfg/yolo.cfg yolo.weights data/dog.jpg",
+  rtn <- try(system("./darknet detect cfg/yolov3.cfg yolov3.weights data/dog.jpg",
                     intern = TRUE))
   if(length(rtn) == 0)
     warning("Automatic installation failed!\n
@@ -241,7 +249,7 @@ yolo_update <- function(yolo.inst){
 
   # Reset working directory and return
   setwd(wd)
-  message("Working directory has been resettet")
+  message("Working directory has been resetted")
   invisible(0)
 }
 

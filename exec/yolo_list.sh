@@ -13,4 +13,4 @@ cd $1
 
 # execute
 #./darknet detect cfg/yolo.cfg tiny.weights "$1"
-./darknet detect cfg/yolo.cfg yolo.weights < "$imglist"
+./darknet detect cfg/yolov3.cfg yolov3.weights < "$imglist"

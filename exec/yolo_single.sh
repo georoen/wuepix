@@ -15,7 +15,7 @@ cd $1
 
 # execute
 #./darknet detect cfg/yolo.cfg tiny.weights "$1"
-./darknet detect cfg/yolo.cfg yolo.weights "$file" -out "$out"
+./darknet detect cfg/yolov3.cfg yolov3.weights "$file" -out "$out"
 
 # archive predictions
 #mv -fT predictions.png "$dir/$(basename -s .jpg $2).png"
