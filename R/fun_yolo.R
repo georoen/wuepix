@@ -155,18 +155,22 @@ yolo_install <- function(yolo.inst){
   setwd(dirname(yolo.inst))
 
   # Clone repository
-  if(!dir.exists(basename(yolo.inst)))
+  if(!dir.exists(basename(yolo.inst))){
     git2r::clone("https://github.com/pjreddie/darknet", basename(yolo.inst))
-  else
+  } else {
     stop("This directroy already exists. Use yolo_update() instead.")
+  }
 
   # Make install
   setwd(basename(yolo.inst))
-  openmp <- readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`")
+  openmp <- tools::toTitleCase(readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`:\n"))
   if(openmp == "Yes"){
-    cat(gsub("OPENMP=0", "OPENMP=1", readLines("Makefile")), file="Makefile", sep="\n")
+    makefile <- gsub("OPENMP=0", "OPENMP=1", readLines("Makefile"))
+    cat(makefile, file="Makefile", sep="\n")
+  } else if (openmp == "No") {
+    warning("Proceeding without multithreading!")
   } else {
-    message("Did not understand your answer (Typo?). Proceeding without multithreading!")
+    warning("Did not understand your answer (Typo?). Proceeding without multithreading!")
   }
   system("make")
 
@@ -229,11 +233,14 @@ yolo_update <- function(yolo.inst){
 
   # Make install
   setwd(basename(yolo.inst))
-  openmp <- readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`")
+  openmp <- tools::toTitleCase(readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`:\n"))
   if(openmp == "Yes"){
-    cat(gsub("OPENMP=0", "OPENMP=1", readLines("Makefile")), file="Makefile", sep="\n")
+    makefile <- gsub("OPENMP=0", "OPENMP=1", readLines("Makefile"))
+    cat(makefile, file="Makefile", sep="\n")
+  } else if (openmp == "No") {
+    warning("Proceeding without multithreading!")
   } else {
-    message("Did not understand your answer (Typo?). Proceeding without multithreading!")
+    warning("Did not understand your answer (Typo?). Proceeding without multithreading!")
   }
   system("make")
 
