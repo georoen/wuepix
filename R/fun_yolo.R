@@ -2,8 +2,8 @@
 #' @references
 #' \insertRef{redmon2016yolo9000}{wuepix}
 #' \url{https://pjreddie.com/darknet/yolo/}
-yolo_single <- function(img, logfile="yolo_detections.txt",
-                        predictions="YOLO_Predictions/") {
+yolo_single <- function(img, logfile = "yolo_detections.txt",
+                        predictions = "YOLO_Predictions/") {
   #' @title Object Detection using YOLO
   #' @description detect people using YOLO+CNN (Linux C++), in a single image.
   #'
@@ -35,14 +35,16 @@ yolo_single <- function(img, logfile="yolo_detections.txt",
   # Depends on a working YOLO insatllation !
   yolo.inst <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
   yolo.inst <- readLines(yolo.inst, warn = FALSE)
-  if(!exists("yolo.inst"))
+  if (!exists("yolo.inst")) {
     stop("Could not find yolo.inst.\n
          Installation successfull?\n
          Also run `yolo_update(yolo.inst)` after updating this package!")
+  }
 
   # Check predictions folder
-  if(!is.null(predictions) && !dir.exists(predictions))
+  if (!is.null(predictions) && !dir.exists(predictions)) {
     dir.create(predictions)
+  }
 
   # Classification
   yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_single.sh")
@@ -54,14 +56,13 @@ yolo_single <- function(img, logfile="yolo_detections.txt",
   rtn <- out[-1]
   ## write classification results to logfile
   cat(basename(img), rtn, "\n", file = logfile, append = TRUE)
-  #writeLines(paste(basename(img), rtn), file = logfile)
   ## return number of persons
   invisible(length(grep("person", rtn)))
 }
 
 
 
-yolo_list <- function(img.list, logfile="yolo_detections.txt") {
+yolo_list <- function(img.list, logfile = "yolo_detections.txt") {
   #' @title Object Detection using YOLO
   #' @description detect people using YOLO+CNN (Linux C++), in multiple images.
   #' Unfortunately it is not possible to store the predictions here, but it is
@@ -79,10 +80,11 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   # Depends on a working YOLO insatllation !
   yolo.inst <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
   yolo.inst <- readLines(yolo.inst, warn = FALSE)
-  if(!exists("yolo.inst"))
+  if (!exists("yolo.inst")) {
     stop("Could not find yolo.inst.\n
          Installation successfull?\n
          Also run `yolo_update(yolo.inst)` after updating this package!")
+  }
 
   # Save img.list with absolute paths in img.file
   img.list <- sapply(img.list, tools::file_path_as_absolute)
@@ -102,9 +104,9 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   ## grep filenames
   grep.names <- function(names) {
     # Drop first half of character string
-    rtn.names <- basename(sapply(names,'[[',1))
+    rtn.names <- basename(sapply(names, "[[", 1))
     # then second (runtime):
-    rtn.names <- sapply(sapply(rtn.names, strsplit, ": Predicted"), '[[',1)
+    rtn.names <- sapply(sapply(rtn.names, strsplit, ": Predicted"), "[[", 1)
     rtn.names
   }
   rtn.names <- grep.names(rtn[cues])
@@ -112,23 +114,22 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   ## Add Linebreak
   rtn[cues[-1]] <- paste0("\n", rtn[cues[-1]])
   ## write classification results to logfile
-  # fileConn<-file(logfile)
-  # writeLines(rtn, fileConn)
-  # close(fileConn)
   cat(rtn, "\n", file = logfile, append = TRUE)
 
   # Process return
   ## Group output by image
   # https://stackoverflow.com/a/25411832
   rtn.groups <- split(rtn, cumsum(grepl(".jpg", rtn)))
-  rtn.people <- lapply(rtn.groups, function(x){length(grep("person", x))})
+  rtn.people <- lapply(rtn.groups, function(x) {
+    length(grep("person", x))
+  })
   ## return number of persons
   invisible(unlist(rtn.people))
 }
 
 
 
-yolo_install <- function(yolo.inst){
+yolo_install <- function(yolo.inst) {
   #' @title Install YOLO Automatically
   #' @description
   #'
@@ -155,7 +156,7 @@ yolo_install <- function(yolo.inst){
   setwd(dirname(yolo.inst))
 
   # Clone repository
-  if(!dir.exists(basename(yolo.inst))){
+  if (!dir.exists(basename(yolo.inst))) {
     git2r::clone("https://github.com/pjreddie/darknet", basename(yolo.inst))
   } else {
     stop("This directroy already exists. Use yolo_update() instead.")
@@ -164,9 +165,9 @@ yolo_install <- function(yolo.inst){
   # Make install
   setwd(basename(yolo.inst))
   openmp <- tools::toTitleCase(readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`:\n"))
-  if(openmp == "Yes"){
+  if (openmp == "Yes") {
     makefile <- gsub("OPENMP=0", "OPENMP=1", readLines("Makefile"))
-    cat(makefile, file="Makefile", sep="\n")
+    cat(makefile, file = "Makefile", sep = "\n")
   } else if (openmp == "No") {
     warning("Proceeding without multithreading!")
   } else {
@@ -184,12 +185,13 @@ yolo_install <- function(yolo.inst){
   # Test
   rtn <- try(system("./darknet detect cfg/yolov3.cfg yolov3.weights data/dog.jpg",
                     intern = TRUE))
-  if(length(rtn) == 0)
+  if (length(rtn) == 0) {
     stop("Automatic installation failed!\n
           Please retry manually following:\n
           https://pjreddie.com/darknet/yolo/")
-  else
+  } else {
     message("Installation sucessful!")
+  }
 
   # Reset working directory and return
   setwd(wd)
@@ -199,7 +201,7 @@ yolo_install <- function(yolo.inst){
 
 
 
-yolo_update <- function(yolo.inst){
+yolo_update <- function(yolo.inst) {
   #' @title Update YOLO
   #'
   #' @param yolo.inst directory of YOLO installation.
@@ -224,7 +226,7 @@ yolo_update <- function(yolo.inst){
 
   # Pull update
   rtn <- system("git pull")
-  if(length(rtn) == 1){  # "Bereits aktuell."
+  if (length(rtn) == 1) { # "Bereits aktuell."
     # Reset working directory and return
     setwd(wd)
     message("Working directory has been resetted")
@@ -234,9 +236,9 @@ yolo_update <- function(yolo.inst){
   # Make install
   setwd(basename(yolo.inst))
   openmp <- tools::toTitleCase(readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`:\n"))
-  if(openmp == "Yes"){
+  if (openmp == "Yes") {
     makefile <- gsub("OPENMP=0", "OPENMP=1", readLines("Makefile"))
-    cat(makefile, file="Makefile", sep="\n")
+    cat(makefile, file = "Makefile", sep = "\n")
   } else if (openmp == "No") {
     warning("Proceeding without multithreading!")
   } else {
@@ -246,13 +248,15 @@ yolo_update <- function(yolo.inst){
 
   # Test
   rtn <- try(system("./darknet detect cfg/yolov3.cfg yolov3.weights data/dog.jpg",
-                    intern = TRUE))
-  if(length(rtn) == 0)
+    intern = TRUE
+  ))
+  if (length(rtn) == 0) {
     warning("Automatic installation failed!\n
             Please retry manually following:
             https://pjreddie.com/darknet/yolo/")
-  else
+  } else {
     message("Update sucessful!")
+  }
 
   # Reset working directory and return
   setwd(wd)
@@ -279,11 +283,13 @@ yolo_Read <- function(file = "yolo_detections.txt") {
     # split after filename
     yolo.i <- stringi::stri_split_fixed(str = yolo.i, pattern = (" "), n = 2)[[1]]
     yolo.i <- yolo.i[yolo.i != " "]
-    if(length(yolo.i) < 2)
+    if (length(yolo.i) < 2) {
       return(NULL)
+    }
     obj.class <- strsplit(yolo.i[2], "% ")[[1]]
-    if(TRUE %in% purrr::is_empty(obj.class))
+    if (TRUE %in% purrr::is_empty(obj.class)) {
       return(NULL)
+    }
     obj.class <- strsplit(obj.class, ": ")
     obj.class <- as.data.frame(t(simplify2array(obj.class)))
     names(obj.class) <- c("Class", "Certainty")
@@ -298,9 +304,8 @@ yolo_Read <- function(file = "yolo_detections.txt") {
   yolo.results$Class <- as.character(yolo.results$Class)
   # clean Certainty
   yolo.results$Certainty <- gsub("%", "", yolo.results$Certainty)
-  yolo.results$Certainty <- as.numeric(yolo.results$Certainty)/100
+  yolo.results$Certainty <- as.numeric(yolo.results$Certainty) / 100
   # return in usual order
   yolo.results <- yolo.results[c("Filename", "Class", "Certainty")]
   return(yolo.results)
 }
-

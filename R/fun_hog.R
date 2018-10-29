@@ -1,6 +1,6 @@
 #' @author Jeroen Staab
 hog_list <- function(img.list, winStride = 4, padding = 8,
-                    Mscale = 1.05, resize = 1, predictions = NULL) {
+                     Mscale = 1.05, resize = 1, predictions = NULL) {
   #' @title Detect pedestrians using HOGDescriptor
   #' @description Detect objects using HOG+SVM (implemented in OpenCV) in all Files/Images of 'path'
   #' @details Python and OpenCV have to be installed. Tested on Linux only.
@@ -21,24 +21,26 @@ hog_list <- function(img.list, winStride = 4, padding = 8,
   #' @return Numeric vector with number of detected persons.
 
   # Check predictions folder
-  if(!is.null(predictions) && !dir.exists(predictions))
+  if (!is.null(predictions) && !dir.exists(predictions)) {
     dir.create(predictions)
+  }
 
   # Path to python script
   hog.bin <- paste0(system.file(package = "wuepix"), "/exec/hogdescriptor.py")
-  #hog.bin <- "~/Programmierung/Masterarbeit/method/code_obia/detect.py"
 
   # Write img.list
   img.list.tmp <- tempfile()
   cat(img.list, sep = ",", file = img.list.tmp)
-  #write.table(img.list, file = img.list.tmp, row.names = FALSE, col.names = FALSE, eol = "", quote = FALSE, sep=",")
 
   # Classification
-  cmd <- paste("python", hog.bin, "-i", img.list.tmp, "-x", resize,
-               "-w", winStride, "-p", padding, "-s", Mscale)
+  cmd <- paste(
+    "python", hog.bin, "-i", img.list.tmp, "-x", resize,
+    "-w", winStride, "-p", padding, "-s", Mscale
+  )
 
-  if(!is.null(predictions))
+  if (!is.null(predictions)) {
     cmd <- paste(cmd, "-o", predictions)
+  }
   out <- system(cmd, intern = TRUE)
 
   rtn <- as.numeric(out)
