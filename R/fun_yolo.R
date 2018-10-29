@@ -53,7 +53,7 @@ yolo_single <- function(img, logfile="yolo_detections.txt",
   ## drop runtime
   rtn <- out[-1]
   ## write classification results to logfile
-  cat(basename(img), rtn, file = logfile, fill = TRUE, append = TRUE)
+  cat(basename(img), rtn, "\n", file = logfile, append = TRUE)
   #writeLines(paste(basename(img), rtn), file = logfile)
   ## return number of persons
   invisible(length(grep("person", rtn)))
@@ -112,10 +112,10 @@ yolo_list <- function(img.list, logfile="yolo_detections.txt") {
   ## Add Linebreak
   rtn[cues[-1]] <- paste0("\n", rtn[cues[-1]])
   ## write classification results to logfile
-  fileConn<-file(logfile)
-  writeLines(rtn, fileConn)
-  close(fileConn)
-  #cat(rtn, file = logfile, fill = FALSE, append = TRUE)
+  # fileConn<-file(logfile)
+  # writeLines(rtn, fileConn)
+  # close(fileConn)
+  cat(rtn, "\n", file = logfile, append = TRUE)
 
   # Process return
   ## Group output by image
@@ -179,7 +179,7 @@ yolo_install <- function(yolo.inst){
 
   # Test
   rtn <- try(system("./darknet detect cfg/yolov3.cfg yolov3.weights data/dog.jpg",
-                intern = TRUE))
+                    intern = TRUE))
   if(length(rtn) == 0)
     stop("Automatic installation failed!\n
           Please retry manually following:\n
@@ -255,22 +255,26 @@ yolo_update <- function(yolo.inst){
 
 
 
+
 yolo_Read <- function(file = "yolo_detections.txt") {
   #' @title Read YOLO Output File
   #' @description Read and clean YOLO output file, as saved to working directory
   #' by yolo_list()
   #' @param file path to output "yolo_detections.txt" file.
+  #' @importFrom readr read_file
+  #' @importFrom stringi stri_split_fixed
   #' @importFrom purrr is_empty
-  yolo <- read_file(file)
-  yolo <- as.list(strsplit(yolo, "\n\n")[[1]])
+  yolo <- readr::read_file(file)
+  yolo <- as.list(strsplit(yolo, "\n")[[1]])
 
   # Read a single line
   yolo_Interpret_single <- function(yolo.i) {
     # split after filename
-    yolo.i <- strsplit(unlist(yolo.i), "\n")[[1]]
+    yolo.i <- stringi::stri_split_fixed(str = yolo.i, pattern = (" "), n = 2)[[1]]
+    yolo.i <- yolo.i[yolo.i != " "]
     if(length(yolo.i) < 2)
       return(NULL)
-    obj.class <- yolo.i[-1]
+    obj.class <- strsplit(yolo.i[2], "% ")[[1]]
     if(TRUE %in% purrr::is_empty(obj.class))
       return(NULL)
     obj.class <- strsplit(obj.class, ": ")
@@ -292,3 +296,4 @@ yolo_Read <- function(file = "yolo_detections.txt") {
   yolo.results <- yolo.results[c("Filename", "Class", "Certainty")]
   return(yolo.results)
 }
+
