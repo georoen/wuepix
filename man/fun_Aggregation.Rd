@@ -12,3 +12,6 @@ fun_Aggregation(Timestamp, Variable, T_scale = "hour")
 \value{
 Dataframe including summed and mean variable per Timeinterval
 }
+\description{
+Aggregate Time-series
+}

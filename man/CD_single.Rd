@@ -28,3 +28,8 @@ both directions. "diff+" Image Differencing, positive changes only.}
 \value{
 Classification result. Here work is in progess...
 }
+\description{
+Change Detection
+
+Detect changes between two images using image differencing
+}

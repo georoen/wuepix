@@ -9,6 +9,9 @@ yolo_update(yolo.inst)
 \arguments{
 \item{yolo.inst}{directory of YOLO installation.}
 }
+\description{
+Update YOLO
+}
 \details{
 since YOLO is under active development this function wraps the
 update procedure (1-2) and test it.
