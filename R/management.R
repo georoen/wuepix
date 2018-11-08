@@ -9,6 +9,7 @@ JPEG_plot <- function(img, main = NULL) {
   #'
   #' @details Images can be loaded as raster object using `JPEG::readJPEG()`.
   #'
+  #' @export JPEG_plot
 
   # Check img
   if (min(img, na.rm = TRUE) < 0) {
@@ -43,6 +44,8 @@ JPEG_histStrecht <- function(img) {
   #' further processing (i.e. Change Detection) may be limited due altered values.
   #' @param img A raster object.
   #' @return same as input, but ranged between 0 and 1 (nummeric).
+  #'
+  #' @export JPEG_histStrecht
   img[is.infinite(img)] <- NA
   (img - min(img, na.rm = TRUE)) / (max(img, na.rm = TRUE) - min(img, na.rm = TRUE))
 }
@@ -57,6 +60,8 @@ JPEG_grayscale <- function(img, red = 1 / 3, green = 1 / 3, blue = 1 / 3) {
   #' @param green Calibration weight for green.
   #' @param blue Calibration weight for blue.
   #' @return Singe layer raster object.
+  #'
+  #' @export JPEG_grayscale
   rtn <- img[, , 1]
   rtn <- red * img[, , 1] + green * img[, , 2] + blue * img[, , 3]
   rtn
@@ -78,6 +83,8 @@ ROI_draw <- function(img) {
   #' @seealso \code{\link{histROI}}
   #'
   #' @importFrom SDMTools pnt.in.poly
+  #'
+  #' @export ROI_draw
 
   ratio <- dim(img)[1] / dim(img)[2]
   roi.data <- list()
@@ -107,6 +114,8 @@ ROI_hist <- function(roi) {
   #' @title Inspect a Region of Interest
   #' @description Ggplot histogramm of a region of interest.
   #' @param roi A numeric dataframe as returned by InspectROI().
+  #'
+  #' @export ROI_hist
 
   roi <- gather(roi, "Band", "Value")
   ggplot(roi, aes(Value, color = Band)) +
@@ -118,6 +127,9 @@ fun_Aggregation <- function(Timestamp, Variable, T_scale = "hour") {
   #' @title Aggregate Time-series
   #' @param T_scale Timeinterval. See ?lubridate::floor_date()
   #' @return Dataframe including summed and mean variable per Timeinterval
+  #' @importFrom dplyr %>%
+  #'
+  #' @export fun_Aggregation
   df <- data.frame(Timestamp, Variable)
   df %>%
     mutate(Timestamp = lubridate::floor_date(Timestamp, T_scale)) %>%

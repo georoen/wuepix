@@ -19,6 +19,7 @@ hog_list <- function(img.list, winStride = 4, padding = 8,
   #' @param predictions dir path to where to store prediction images. Must end with "/".
   #'
   #' @return Numeric vector with number of detected persons.
+  #' @export hog_list
 
   # Check predictions folder
   if (!is.null(predictions) && !dir.exists(predictions)) {
@@ -58,5 +59,6 @@ hog_install <- function() {
   #' @description CUDA GPU: \code{sudo apt-get install nvidia-cuda-dev nvidia-cuda-toolkit nvidia-nsight}
   #' @seealso http://docs.opencv.org/trunk/df/d65/tutorial_table_of_content_introduction.html
   #' @usage ?hog_install()
+  #' @export hog_install
   ?hog_install()
 }

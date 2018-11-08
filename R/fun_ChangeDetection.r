@@ -6,6 +6,7 @@ getImage <- function(filename, extend = NULL, plot = FALSE) {
   #' extend Optional extend to crop image, numeric vector.
   #' plot Optional plot loaded image, boolean.
   #' @import jpeg
+  #' @export getImage
   file <- jpeg::readJPEG(filename)
   if (!is.null(extend)) {
     file <- file[extend[1]:extend[2], extend[3]:extend[4], ]
@@ -33,6 +34,7 @@ CD_single <- function(file.now, file.old, Min = 0.2, Max = 1, predictions = NULL
   #' both directions. "diff+" Image Differencing, positive changes only.
   #'
   #' @return Classification result. Here work is in progess...
+  #' @export CD_single
 
 
   # Load Images
@@ -127,6 +129,7 @@ CD_list <- function(img.list, ...) {
   #'
   #' @import doParallel
   #' @import foreach
+  #' @export CD_list
   `%dopar%` <- foreach::`%dopar%`
 
   cores <- parallel::detectCores() - 1

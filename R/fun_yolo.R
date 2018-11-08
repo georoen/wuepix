@@ -31,6 +31,7 @@ yolo_single <- function(img, logfile = "yolo_detections.txt",
   #' yolo_single(img)
   #' sapply(img.list, yolo_single)
   #'
+  #' @export yolo_single
 
   # Depends on a working YOLO insatllation !
   yolo.inst <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
@@ -76,6 +77,8 @@ yolo_list <- function(img.list, logfile = "yolo_detections.txt") {
   #'
   #' @seealso \code{\link{yolo_single}}
   #' @import tools
+  #'
+  #' @export yolo_list
 
   # Depends on a working YOLO insatllation !
   yolo.inst <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
@@ -148,6 +151,8 @@ yolo_install <- function(yolo.inst) {
   #' `paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")`
   #'
   #' @importFrom git2r clone
+  #'
+  #' @export yolo_install
 
 
   # Changing working directory
@@ -214,6 +219,8 @@ yolo_update <- function(yolo.inst) {
   #' installation, e.g. turning on multithreading or GPU processing.
   #' @details after successfull update it will place `yolo.inst` in
   #' `paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")`
+  #'
+  #' @export yolo_update
 
   # Saving yolo.inst
   yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_inst.txt")
@@ -275,6 +282,7 @@ yolo_Read <- function(file = "yolo_detections.txt") {
   #' @importFrom readr read_file
   #' @importFrom stringi stri_split_fixed
   #' @importFrom purrr is_empty
+  #' @export yolo_Read
   yolo <- readr::read_file(file)
   yolo <- as.list(strsplit(yolo, "\n")[[1]])
 

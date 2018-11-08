@@ -8,6 +8,7 @@ GTD_single <- function(img) {
   #' @return numeric vector with number of persons.
   #' @import jpeg
   #' @import magick
+  #' @export GTD_single
   plot(as.raster(magick::image_read(img)))
   title(main = basename(img))
   # JPEG_plot(jpeg::readJPEG(img), basename(img))
@@ -30,6 +31,7 @@ GTD_list <- function(img.list) {
   #' @description Manually asses number of persons in multiple images.
   #' @param img.list file path to image, also known as `now`.
   #' @return numeric vector with number of persons.
+  #' @export GTD_list
 
   # Allocate output
   rtn <- img.list
@@ -60,6 +62,7 @@ GTD_truePositives <- function(GTD, PRD) {
   #' @param GTD Numeric vector of Ground-Truth-Data, as returned by GTD_list()
   #' @param PRD Numeric vector of prediction values, as returned by hog_list()
   #' and yolo_list()
+  #' @export GTD_truePositives
 
   print(cor.test(GTD, PRD))
 
