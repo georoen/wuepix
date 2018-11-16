@@ -232,8 +232,8 @@ yolo_update <- function(yolo.inst) {
   setwd(yolo.inst)
 
   # Pull update
-  rtn <- system("git pull")
-  if (length(rtn) == 1) { # "Bereits aktuell."
+  rtn <- system("git pull", intern = TRUE)
+  if (length(rtn) == 1) { # "Already up-to-date."
     # Reset working directory and return
     setwd(wd)
     message("Working directory has been resetted")
@@ -241,7 +241,6 @@ yolo_update <- function(yolo.inst) {
   }
 
   # Make install
-  setwd(basename(yolo.inst))
   openmp <- tools::toTitleCase(readline("Do you want YOLO to make use of multithreading (recomended)? Type `Yes` or `No`:\n"))
   if (openmp == "Yes") {
     makefile <- gsub("OPENMP=0", "OPENMP=1", readLines("Makefile"))
