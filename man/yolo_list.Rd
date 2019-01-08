@@ -4,13 +4,15 @@
 \alias{yolo_list}
 \title{Object Detection using YOLO}
 \usage{
-yolo_list(img.list, logfile = "yolo_detections.txt")
+yolo_list(img.list, logfile = "yolo_detections.txt", thresh = 0.25)
 }
 \arguments{
 \item{img.list}{file path to images.}
 
 \item{logfile}{file path to where to store detailed list of
 classification results.}
+
+\item{thresh}{numeric threshold value.}
 }
 \value{
 numeric number of detected persons.

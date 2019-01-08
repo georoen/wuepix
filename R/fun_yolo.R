@@ -3,7 +3,7 @@
 #' \insertRef{redmon2016yolo9000}{wuepix}
 #' \url{https://pjreddie.com/darknet/yolo/}
 yolo_single <- function(img, logfile = "yolo_detections.txt",
-                        predictions = "YOLO_Predictions/") {
+                        predictions = "YOLO_Predictions/", thresh = 0.25) {
   #' @title Object Detection using YOLO
   #' @description detect people using YOLO+CNN (Linux C++), in a single image.
   #'
@@ -11,6 +11,7 @@ yolo_single <- function(img, logfile = "yolo_detections.txt",
   #' @param logfile file path to where to store detailed list of classification
   #' results.
   #' @param predictions dir path to where to store prediction images
+  #' @param thresh numeric threshold value.
   #'
   #' @return numeric number of detected persons.
   #'
@@ -49,7 +50,7 @@ yolo_single <- function(img, logfile = "yolo_detections.txt",
 
   # Classification
   yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_single.sh")
-  cmd <- paste(yolo.bin, yolo.inst, img, predictions)
+  cmd <- paste(yolo.bin, yolo.inst, img, predictions, thresh)
   out <- system(cmd, intern = TRUE)
 
   # Process output
@@ -63,7 +64,7 @@ yolo_single <- function(img, logfile = "yolo_detections.txt",
 
 
 
-yolo_list <- function(img.list, logfile = "yolo_detections.txt") {
+yolo_list <- function(img.list, logfile = "yolo_detections.txt",  thresh=0.25) {
   #' @title Object Detection using YOLO
   #' @description detect people using YOLO+CNN (Linux C++), in multiple images.
   #' Unfortunately it is not possible to store the predictions here, but it is
@@ -72,6 +73,7 @@ yolo_list <- function(img.list, logfile = "yolo_detections.txt") {
   #' @param img.list file path to images.
   #' @param logfile file path to where to store detailed list of
   #' classification results.
+  #' @param thresh numeric threshold value.
   #'
   #' @return numeric number of detected persons.
   #'
@@ -96,7 +98,7 @@ yolo_list <- function(img.list, logfile = "yolo_detections.txt") {
 
   # Classification
   yolo.bin <- paste0(system.file(package = "wuepix"), "/exec/yolo_list.sh")
-  cmd <- paste(yolo.bin, yolo.inst, img.file)
+  cmd <- paste(yolo.bin, yolo.inst, img.file, thresh)
   out <- system(cmd, intern = TRUE)
 
   # Process logfile

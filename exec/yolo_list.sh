@@ -4,6 +4,7 @@
 # Arguments
 # 1 path to yolo.inst folder.
 # 2 Absolute filepath to image list
+# 3 Threshold value
 
 # Get abolute path to img
 imglist=$(readlink -f $2)
@@ -12,5 +13,4 @@ imglist=$(readlink -f $2)
 cd $1
 
 # execute
-#./darknet detect cfg/yolo.cfg tiny.weights "$1"
-./darknet detect cfg/yolov3.cfg yolov3.weights < "$imglist"
+./darknet detect cfg/yolov3.cfg yolov3.weights -thresh $3 < "$imglist"
