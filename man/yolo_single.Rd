@@ -5,7 +5,7 @@
 \title{Object Detection using YOLO}
 \usage{
 yolo_single(img, logfile = "yolo_detections.txt",
-  predictions = "YOLO_Predictions/", thresh = 0.25)
+  predictions = "YOLO_Predictions/", thresh = 0.25, append = TRUE)
 }
 \arguments{
 \item{img}{file path to image, also known as `now`.}
@@ -16,6 +16,8 @@ results.}
 \item{predictions}{dir path to where to store prediction images}
 
 \item{thresh}{numeric threshold value.}
+
+\item{append}{logical. By default (TRUE), the output is appended to the logfile. If FALSE, any existing file of the name is destroyed.}
 }
 \value{
 numeric number of detected persons.

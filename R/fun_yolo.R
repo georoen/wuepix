@@ -3,7 +3,7 @@
 #' \insertRef{redmon2016yolo9000}{wuepix}
 #' \url{https://pjreddie.com/darknet/yolo/}
 yolo_single <- function(img, logfile = "yolo_detections.txt",
-                        predictions = "YOLO_Predictions/", thresh = 0.25) {
+                        predictions = "YOLO_Predictions/", thresh = 0.25, append = TRUE) {
   #' @title Object Detection using YOLO
   #' @description detect people using YOLO+CNN (Linux C++), in a single image.
   #'
@@ -12,6 +12,7 @@ yolo_single <- function(img, logfile = "yolo_detections.txt",
   #' results.
   #' @param predictions dir path to where to store prediction images
   #' @param thresh numeric threshold value.
+  #' @param append logical. By default (TRUE), the output is appended to the logfile. If FALSE, any existing file of the name is destroyed.
   #'
   #' @return numeric number of detected persons.
   #'
@@ -54,6 +55,10 @@ yolo_single <- function(img, logfile = "yolo_detections.txt",
   out <- system(cmd, intern = TRUE)
 
   # Process output
+  ## Append or create new file?
+  if (!append) {
+    suppressWarnings(file.remove(logfile))
+  }
   ## drop runtime
   rtn <- out[-1]
   ## write classification results to logfile
@@ -64,7 +69,7 @@ yolo_single <- function(img, logfile = "yolo_detections.txt",
 
 
 
-yolo_list <- function(img.list, logfile = "yolo_detections.txt",  thresh=0.25) {
+yolo_list <- function(img.list, logfile = "yolo_detections.txt",  thresh=0.25, append = TRUE) {
   #' @title Object Detection using YOLO
   #' @description detect people using YOLO+CNN (Linux C++), in multiple images.
   #' Unfortunately it is not possible to store the predictions here, but it is
@@ -74,6 +79,7 @@ yolo_list <- function(img.list, logfile = "yolo_detections.txt",  thresh=0.25) {
   #' @param logfile file path to where to store detailed list of
   #' classification results.
   #' @param thresh numeric threshold value.
+  #' @param append logical. By default (TRUE), the output is appended to the logfile. If FALSE, any existing file of the name is destroyed.
   #'
   #' @return numeric number of detected persons.
   #'
@@ -102,6 +108,10 @@ yolo_list <- function(img.list, logfile = "yolo_detections.txt",  thresh=0.25) {
   out <- system(cmd, intern = TRUE)
 
   # Process logfile
+  ## Append or create new file?
+  if (!append) {
+    suppressWarnings(file.remove(logfile))
+  }
   ## Drop last row (empty)
   rtn <- out[-length(out)]
   ## Split back into images
